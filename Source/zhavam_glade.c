@@ -401,7 +401,7 @@ const char * gtkSource = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
     <property name=\"program_name\">Zhavam (powered by Gtk+ 3.12)</property>\
     <property name=\"version\">1.0</property>\
     <property name=\"comments\" translatable=\"yes\">Zhavam helps you to identify the music or song that is beign reproduced from or outside of your computer. You can also try singing or whistle the song you are looking for, but  you need have got a micro connected to it.</property>\
-    <property name=\"website\">http://selenitas.es/zhavam</property>\
+    <property name=\"website\">https://github.com/ipserc/zhavam</property>\
     <property name=\"website_label\" translatable=\"yes\">Zhavam</property>\
     <property name=\"license\" translatable=\"yes\">Este programa viene SIN NINGUNA GARANTÍA.\
 Consulte la &lt;a href=\"https://www.gnu.org/licenses/gpl-3.0.html\"&gt;Licencia Pública General de GNU, versión 3 o posterior&lt;/a&gt; para obtener más detalles.</property>\
