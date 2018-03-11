@@ -67,7 +67,7 @@ MAIN = zhavam
 
 .PHONY: depend clean
 
-all:    $(MAIN)
+all:	$(MAIN)
 	@echo
 	@echo ===========================================
 	@echo  $(MAIN) has been compiled... 
@@ -75,6 +75,10 @@ all:    $(MAIN)
 	@echo ===========================================
 	@echo
 
+glade:
+	./gladec.sh ../config/zhavam.glade
+	make
+	
 $(MAIN): $(OBJS) 
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
 
@@ -83,6 +87,7 @@ $(MAIN): $(OBJS)
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
 # (see the gnu make manual section about automatic variables)
 .c.o:
+	./gladec.sh ../config/zhavam.glade
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
