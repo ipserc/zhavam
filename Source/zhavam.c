@@ -168,8 +168,8 @@ int doZhavam(char * devID, acr_data_t * acrResponse)
  */
 char * acrDataToText(char * trackInfoText, acr_data_t * acrResponse)
 {
-	char * ptr;
-	ptr = trackInfoText;
+	char * ptr = trackInfoText;
+
 	if (acrResponse->status.code[0] != '0')
 	{
 		ptr += sprintf(ptr, "status msg:%s\n", acrResponse->status.msg);
@@ -178,23 +178,22 @@ char * acrDataToText(char * trackInfoText, acr_data_t * acrResponse)
 	}
 	else
 	{
-		for(int m = 0, n = 1; m < MAX_ITEMS; ++m, ++n)
-		{
-			if (!acrResponse->metadata.music[m].title[0]) break;
-			//ptr += sprintf(ptr, "------- TRACK INFO %d -------\n", m+1);
-			ptr += sprintf(ptr, "#%d Title:%s\n", n, acrResponse->metadata.music[m].title);
-			for(int i = 0; i < MAX_ITEMS; ++i) {
-				if (!acrResponse->metadata.music[m].artists[i][0]) break;
-				ptr += sprintf(ptr, "#%d Artists[%d]:%s\n", n, i, acrResponse->metadata.music[m].artists[i]);
-			}
-			ptr += sprintf(ptr, "#%d Album:%s\n", n, acrResponse->metadata.music[m].album);
-			for(int i = 0; i < MAX_ITEMS; ++i) {
-				if (!acrResponse->metadata.music[m].genres[i][0]) break;
-				ptr += sprintf(ptr, "#%d Genres[%d]:%s\n", n, i, acrResponse->metadata.music[m].genres[i]);
-			}
-			ptr += sprintf(ptr, "#%d Label:%s\n", n, acrResponse->metadata.music[m].label);
-			ptr += sprintf(ptr, "#%d Release date:%s\n", n, acrResponse->metadata.music[m].release_date);
+		//ptr += sprintf(ptr, "------- TRACK INFO %d -------\n", m+1);
+		ptr += sprintf(ptr, "Title:%s\n", acrResponse->metadata.music.title);
+		for(int i = 0; i < MAX_ITEMS; ++i) {
+			if (!acrResponse->metadata.music.artists[i][0]) break;
+			ptr += sprintf(ptr, "Artists[%d]:%s\n", i, acrResponse->metadata.music.artists[i]);
 		}
+		ptr += sprintf(ptr, "Album:%s\n", acrResponse->metadata.music.album);
+		for(int i = 0; i < MAX_ITEMS; ++i) {
+			if (!acrResponse->metadata.music.genres[i][0]) break;
+			ptr += sprintf(ptr, "Genres[%d]:%s\n", i, acrResponse->metadata.music.genres[i]);
+		}
+		ptr += sprintf(ptr, "Label:%s\n", acrResponse->metadata.music.label);
+		ptr += sprintf(ptr, "Release date:%s\n", acrResponse->metadata.music.release_date);
+		ptr += sprintf(ptr, "Spotify album id:%s\n", acrResponse->metadata.music.external_metadata.spotify.album_id);
+		ptr += sprintf(ptr, "Spotify track id:%s\n", acrResponse->metadata.music.external_metadata.spotify.track_id);
+		ptr += sprintf(ptr, "Youtube video id:%s\n", acrResponse->metadata.music.external_metadata.youtube_vid);
 		//printf("External ids:%s\n", acrResponse->metadata.music[m].external_ids);
 		//printf("Play offset_ms:%s\n", acrResponse->metadata.music[m].play_offset_ms);
 		//printf("External metadata:%s\n", acrResponse->metadata.music[m].external_metadata);

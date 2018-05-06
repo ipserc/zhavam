@@ -12,6 +12,7 @@
 
 #include "zhavam_acrcloud.h"
 #include "acrcloud_recognizer.h"
+#include "zhavam_jsonparser.h"
 
 #ifndef SOURCE_ZHAVAM_ALSA_H_
 #define SOURCE_ZHAVAM_ALSA_H_

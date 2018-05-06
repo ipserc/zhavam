@@ -61,7 +61,7 @@ char * recognize(acrcloud_config acrConfig,
 				int nchannels,
 				int sample_rate)
 {
-	char *result = NULL;
+	char * result = NULL;
 	int result_len = 0;
 
 	acr_recognize_by_pcm(acrConfig, pcm_buffer, pcm_buffer_len, nchannels, sample_rate, &result, &result_len);

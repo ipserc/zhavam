@@ -38,7 +38,7 @@ void gtkSetAcrCloudHostEntry(zhavamConf_t * ptZhavamConf)
 char * gtkGetAcrCloudHostEntry(void)
 {
 	GtkWidget * acrCloudHostEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudHostEntry"));
-	return 	gtk_entry_get_text(acrCloudHostEntry);
+	return gtk_entry_get_text(acrCloudHostEntry);
 }
 
 /**
@@ -59,7 +59,7 @@ void gtkSetAcrCloudAccessKeyEntry(zhavamConf_t * ptZhavamConf)
 char * gtkGetAcrCloudAccessKeyEntry(void)
 {
 	GtkWidget * acrCloudAccessKeyEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudAccessKeyEntry"));
-	return 	gtk_entry_get_text(acrCloudAccessKeyEntry);
+	return gtk_entry_get_text(acrCloudAccessKeyEntry);
 }
 
 /**
@@ -80,7 +80,7 @@ void gtkSetAcrCloudAccessSecretEntry(zhavamConf_t * ptZhavamConf)
 char * gtkGetAcrCloudAccessSecretEntry(void)
 {
 	GtkWidget * acrCloudAccessSecretEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudAccessSecretEntry"));
-	return 	gtk_entry_get_text(acrCloudAccessSecretEntry);
+	return gtk_entry_get_text(acrCloudAccessSecretEntry);
 }
 
 /**
@@ -100,7 +100,7 @@ void gtkSetAcrCloudTimeOutSpinButton(zhavamConf_t * ptZhavamConf)
 int gtkGetAcrCloudTimeOutSpinButton(void)
 {
 	GtkWidget * acrCloudTimeOutSpinButton = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudTimeOutSpinButton"));
-	return 	gtk_spin_button_get_value_as_int(acrCloudTimeOutSpinButton);
+	return gtk_spin_button_get_value_as_int(acrCloudTimeOutSpinButton);
 }
 
 /**

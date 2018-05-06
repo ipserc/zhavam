@@ -329,7 +329,8 @@ int startRecord(snd_pcm_t * capture_handle,
 		}
 		sprintf(STATUS_MESSAGE, "read %d done", i);
 		reconResponse = recognize(acrConfig, pcm_buffer, pcm_buffer_len, nchannels, sample_rate);
-		parseJSON(acrResponse, reconResponse);
+		TRACE("ACRCloud response:%s", reconResponse);
+		getAcrData(reconResponse, acrResponse);
 		free(reconResponse);
 		if (acrResponse->status.code[0] == '0') break;
 	}

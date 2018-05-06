@@ -14,58 +14,98 @@
 #include "zhavam_acrcloud.h"
 
 #define MAX_NUM_OF_TOKENS 1000 // a number >= total number of tokens
+#define VALUE_MAX_LEN 128 // Maximum length of the value field
+#define MAX_ITEMS 10	// Maximum number of item in a list
+
+
+typedef struct
+{
+	char * name;
+	jsmntype_t jtype;
+	int index;
+} token_t;
 
 /**
- * JSON Reply ACR Data tokens
+ * status definition section
  */
-enum
+typedef struct
 {
-	_START_SECTION_ = -99,
-	//main_section definition section
-	_STATUS_ = 0,
-	_METADATA_,
-	_COST_TIME_,
-	_RESULT_TYPE_,
-	//status definition section
-	_MSG_,
-	_CODE_,
-	_VERSION_,
-	//metadata definition section
-	_MUSIC_,
-	_TIMESTAMP_UTC_,
-	//music definition section
-	_EXTERNAL_IDS_,
-	_PLAY_OFFSET_MS_,
-	_EXTERNAL_METADATA_,
-	_ARTISTS_,
-	_GENRES_,
-	_TITLE_,
-	_REALEASE_DATE_,
-	_LABEL_,
-	_DURATION_MS_,
-	_ALBUM_,
-	_ACRID_,
-	_RESULT_FROM_,
-	_SCORE_
-};
+	char msg[VALUE_MAX_LEN];
+	char code[VALUE_MAX_LEN];
+	char version[VALUE_MAX_LEN];
+} status_t;
+
+//"metadata.music.external_metadata.spotify.album.id"
+typedef struct
+{
+	char album_id[VALUE_MAX_LEN];
+	char artist_id[MAX_ITEMS][VALUE_MAX_LEN];
+	char track_id[VALUE_MAX_LEN];
+} spotify_t;
+
+typedef struct
+{
+	spotify_t spotify;
+	char youtube_vid[VALUE_MAX_LEN];
+} external_metadata_t;
+
+/**
+ * music structure
+ */
+typedef struct
+{
+	char external_ids[VALUE_MAX_LEN];
+	char play_offset_ms[VALUE_MAX_LEN];
+	external_metadata_t external_metadata;
+	char artists[MAX_ITEMS][VALUE_MAX_LEN];
+	char genres[MAX_ITEMS][VALUE_MAX_LEN];
+	char title[VALUE_MAX_LEN];
+	char release_date[VALUE_MAX_LEN];
+	char label[VALUE_MAX_LEN];
+	char duration_ms[VALUE_MAX_LEN];
+	char album[VALUE_MAX_LEN];
+	char acrid[VALUE_MAX_LEN];
+	char result_from[VALUE_MAX_LEN];
+	char score[VALUE_MAX_LEN];
+} music_t;
+
+/**
+ * metadata structure
+ */
+typedef struct
+{
+	music_t music;
+	char timestamp_utc[VALUE_MAX_LEN];
+} metadata_t;
+
+/**
+ * data structure
+ */
+typedef struct
+{
+	status_t status;
+	metadata_t metadata;
+	char cost_time[VALUE_MAX_LEN];
+	char result_type[VALUE_MAX_LEN];
+} acr_data_t;
+
 
 /*
  * Prototypes
  */
-void initACRdataStruct(acr_data_t *acrResponse);
-int indentifyMainSection(int section, char *jsonToken, size_t tokenLen);
-int indentifyStatusToken(char *jsonToken, size_t tokenLen);
-int indentifyMusicToken(char *jsonToken, size_t tokenLen);
-int indentifyMetadataToken(char *jsonToken, size_t tokenLen);
-void printToken(char *jsonTokenPtr, size_t tokenLen);
-char *copyToken(char *token, char *jsonTokenPtr, size_t tokenLen);
-int countField(const char *string2find, const char *myString);
-jsmntok_t *getStatusTokens(acr_data_t *acrResponse, char *jsonMsg, jsmntok_t *token, int *tokNbr, int section);
-jsmntok_t *getMusicToken(acr_data_t *acrResponse, char *jsonMsg, jsmntok_t *token, int *tokNbr, int section, int m);
-jsmntok_t *walkMusicToken(acr_data_t *acrResponse, char *jsonMsg, jsmntok_t *token, int *tokNbr, int section);
-jsmntok_t *getMetadataTokens(acr_data_t *acrResponse, char *jsonMsg, jsmntok_t *token, int *tokNbr, int section);
-int walkTokens(acr_data_t *acrResponse, char *jsonMsg, int tokenCount, jsmntok_t *tokens);
-int parseJSON(acr_data_t *acrResponse, char *jsonMsg);
-void printAcrData(acr_data_t *acrResponse);
+int listToken(list_t *tokenList, char *tpath);
+void printTok(void *param);
+void freeTokenList(list_t *tokenList);
+int parseJSON(char *jsonMsg, jsmn_parser *parser, jsmntok_t *jsonTokens);
+void nextToken(jsmntok_t **jsonToken, int *jsonTokNbr);
+void prevToken(jsmntok_t **jsonToken, int *jsonTokNbr);
+jsmntok_t *findJsonToken(char *jsonMsg, list_t *tokenList, jsmntok_t *jsonTokens, int *jsonTokNbr, int tokenCount);
+void printJsonTokens(char *jsonMsg, jsmntok_t *jsonTokens, int tokenCount);
+void printJsonToken(char *jsonMsg, jsmntok_t *jsonToken);
+void printJsonTokenValue(char *jsonMsg, jsmntok_t *jsonToken);
+char *getTokenValue(char *tpath, char *jsonMsg, jsmntok_t *jsonTokens, int tokenCount);
+char *setUpAcrResponseField(char *tpath, char *acrResponseField, char *jsonMsg, jsmntok_t *jsonTokens, int tokenCount);
+int getAcrData(char *jsonMsg, acr_data_t *acrResponse);
+
 
 #endif /* SOURCE_ZHAVAM_JSONPARSER_H_ */
