@@ -16,7 +16,8 @@ CFLAGS += -Wall -fopenmp -g $(shell pkg-config --cflags gtk+-3.0 glib-2.0 libxml
 # define any directories containing header files other than /usr/include
 #
 # INCLUDES = -I/home/newhall/include  -I../include
-INCLUDES += -I../include
+INCLUDES += -I/opt/include
+#INCLUDES += -include jsmnRipper.h -include jsmn.h
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -24,19 +25,20 @@ INCLUDES += -I../include
 # LFLAGS = -L/home/newhall/lib  -L../lib
 # Removed cause gmodule is dumping core LFLAGS += $(shell pkg-config --libs gtk+-3.0 gmodule-2.0 glib-2.0 libxml-2.0)
 LFLAGS += $(shell pkg-config --libs gtk+-3.0 glib-2.0 libxml-2.0 libconfig)
-LFLAGS += -L/home/ipserc/workspace_oxigen/zhavam/lib
+LFLAGS += -L/home/ipserc/workspace_oxigen/zhavam/lib -L/opt/lib
 
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
-# LIBS = -lmylib -lm
+# LIBS = -lmylib -lm -ljsmnRipper -llist
 LIBS += -lz -lm -lasound -lacrcloud_recognizer
 
 # define the C source files
 # SRCS = emitter.c error.c init.c lexer.c main.c symbol.c parser.c
 
-SRCS =  jsmn.c  \
-		list.c  \
+SRCS =  jsmn.c \
+		jsmnRipper.c \
+		list.c \
 		zhavam.c  \
 		zhavam_acrcloud.c  \
 		zhavam_alsa.c  \

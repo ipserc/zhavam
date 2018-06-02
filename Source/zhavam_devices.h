@@ -8,8 +8,8 @@
 #ifndef SOURCE_ZHAVAM_DEVICES_H_
 #define SOURCE_ZHAVAM_DEVICES_H_
 
-#include "list.h"
 #include <stdbool.h>
+#include "list.h"
 
 extern int errno;
 extern char STATUS_MESSAGE[];

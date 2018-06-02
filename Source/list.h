@@ -38,14 +38,19 @@ typedef struct list {
 	node_t * tail;
 } list_t;
 
-list_t *listNew(list_t *list);
+/*
+ * Prototypes
+ */
+/* list.c */
+void listVersion(void);
+list_t *listNew(list_t **list);
 unsigned listItemsCount(list_t *list);
 list_t *listAppend(list_t *list, void *item, size_t itemSize);
-list_t *listDrop(list_t *list);
-void listDestroy(list_t *list);
+list_t *listDrop(list_t *list, void (*freeItem)(void *));
+void listDestroy(list_t *list, void (*freeItem)(void *));
 list_t *listInsert(list_t *list, void *item, size_t itemSize, node_t *ptr);
-list_t *listRemove(list_t *list, node_t *ptr);
-list_t *listRemoveN(list_t *list, unsigned n);
+list_t *listRemove(list_t *list, node_t *ptr, void (*freeItem)(void *));
+list_t *listRemoveN(list_t *list, unsigned n, void (*freeItem)(void *));
 void listPrint(list_t *list, void (*printFunc)(void *));
 void listNodePrint(node_t *node, void (*printFunc)(void *));
 void listMapPrint(list_t *list);

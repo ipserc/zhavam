@@ -24,8 +24,9 @@ typedef enum _zhv_acr_rec_type
 /*
  * Prototypes
  */
-char *getZhvAcrOptRecStr(void);
-ACRCLOUD_OPT_REC_TYPE recTypeDecode(char *recTypeString);
+/* zhavam_acrcloud.c */
+char **getZhvAcrOptRecStr(void);
+ACRCLOUD_OPT_REC_TYPE recTypeDecode(const char *recTypeString);
 char *recTypeString(char *acrcloud_rec_type_str, ACRCLOUD_OPT_REC_TYPE acrcloud_rec_type);
 char *recognize(acrcloud_config acrConfig, char *pcm_buffer, int pcm_buffer_len, int nchannels, int sample_rate);
 

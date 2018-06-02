@@ -11,26 +11,16 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
-
-#include "acrcloud_recognizer.h"
-#include "jsmn.h"
-#include "list.h"
-
-#include "zhavam.h"
-#include "zhavam_acrcloud.h"
-#include "zhavam_alsa.h"
-#include "zhavam_config.h"
-#include "zhavam_devices.h"
 #include "zhavam_errtra.h"
-#include "zhavam_jsonparser.h"
+
 /**
  * Full Error message with information of errno, fileName, functionName, lineNbr and ErrorMsg printed in stderr
- * @param const char * fileName
- * @param const char * functionName
- * @param const int lineNbr
- * @param const int errorNbr
- * @param const char * fmtstr
- * @param ...
+ * @param fileName
+ * @param functionName
+ * @param lineNbr
+ * @param errorNbr
+ * @param fmtstr: Format string as in printf
+ * @param ...: Rest of parameters
  */
 void funcError(const char * fileName,
 				const char * functionName,
@@ -55,8 +45,8 @@ void funcError(const char * fileName,
 
 /**
  * Short Error message with information of errno and ErrorMsg printed in stderr
- * @param const char * fmtstr
- * @param ...
+ * @param fmtstr: Format string as in printf
+ * @param ...: Rest of parameters
  */
 void eError(const char * fmtstr,...)
 {
@@ -78,8 +68,8 @@ void eError(const char * fmtstr,...)
  * Full trace message with information of timestamp, fileName, functionName, lineNbr and TraceMsg printed in stdout
  * @param const char * fileName
  * @param const char * functionName
- * @param const char * fmtstr
- * @param ...
+ * @param fmtstr: Format string as in printf
+ * @param ...: Rest of parameters
  */
 void funcTrace(const char * fileName,
 				const char * functionName,
@@ -107,8 +97,8 @@ void funcTrace(const char * fileName,
  * @param const char * functionName
  * @param const int lineNbr
  * @param const int errorNbr
- * @param const char * fmtstr
- * @param ...
+ * @param fmtstr: Format string as in printf
+ * @param ...: Rest of parameters
  */
 int funcWarning(const char * fileName,
 				const char * functionName,
@@ -133,8 +123,8 @@ int funcWarning(const char * fileName,
 
 /**
  * Short warning message with information of errno and WarningMsg printed in stdout
- * @param const char * fmtstr
- * @param ...
+ * @param fmtstr: Format string as in printf
+ * @param ...: Rest of parameters
  */
 void wWarning(const char * fmtstr,...)
 {
@@ -151,8 +141,8 @@ void wWarning(const char * fmtstr,...)
 
 /**
  * Stat Lib Errro Manager. Writes specific error messages for EACCES, ELOOP, ENAMETOOLONG, ENOENT and EOVERFLOW
- * @param  int statError
- * @return int statError
+ * @param  statError
+ * @return statError
  */
 int statErrorMngr(int statError)
 {
@@ -177,8 +167,8 @@ int statErrorMngr(int statError)
 
 /**
  * mkdir Errro Manager. Writes specific error messages for EACCES, EEXIST, EMLINK, ENOSPC and EROFS
- * @param int mkdirError
- * @return int mkdirError
+ * @param mkdirError
+ * @return mkdirError
  */
 int mkdirErrorMngr(int mkdirError)
 {

@@ -6,36 +6,42 @@
  */
 
 #include <string.h>
-
-#include "jsmn.h"
-#include "list.h"
-#include "zhavam.h"
 #include "zhavam_acrcloud.h"
-#include "zhavam_alsa.h"
-#include "zhavam_config.h"
-#include "zhavam_devices.h"
-#include "zhavam_errtra.h"
-#include "zhavam_jsonparser.h"
 #include "acrcloud_recognizer.h"
 
+/**
+ * String array with the names for acr_opt_rec
+ */
 char * zhv_acr_opt_rec_str[] = {
 		"acr_opt_rec_audio",
 		"acr_opt_rec_humming",
 		"acr_opt_rec_both"
 };
 
+/**
+ * Array with the indexes for getting the strings from zhv_acr_opt_rec_str
+ * A pseudo-dictionary
+ */
 int zhv_acr_opt_rec_int[] = {
 		acr_opt_rec_audio,
 		acr_opt_rec_humming,
 		acr_opt_rec_both
 };
 
-char * getZhvAcrOptRecStr(void)
+/**
+ * method to get zhv_acr_opt_rec_str array
+ */
+char ** getZhvAcrOptRecStr(void)
 {
 	return zhv_acr_opt_rec_str;
 }
 
-ACRCLOUD_OPT_REC_TYPE recTypeDecode(char * recTypeString)
+/**
+ * Returns the zhv_acr_opt_rec_int from a given zhv_acr_opt_rec_str
+ * @param recTypeString: The zhv_acr_opt_rec_str string
+ * @return the zhv_acr_opt_rec_int associated
+ */
+ACRCLOUD_OPT_REC_TYPE recTypeDecode(const char * recTypeString)
 {
 	if (!strcmp(recTypeString, "acr_opt_rec_audio")) return acr_opt_rec_audio;
 	if (!strcmp(recTypeString, "acr_opt_rec_humming")) return acr_opt_rec_humming;
@@ -43,6 +49,12 @@ ACRCLOUD_OPT_REC_TYPE recTypeDecode(char * recTypeString)
 	return -1;
 }
 
+/**
+ * Returns the zhv_acr_opt_rec_str from a given zhv_acr_opt_rec_int
+ * #param acrcloud_rec_type_str: A pointer to the string in which the zhv_acr_opt_rec_str will be copied
+ * @param acrcloud_rec_type: The given given zhv_acr_opt_rec_int value
+ * @return a pointer to the string with the zhv_acr_opt_rec_str value copied
+ */
 char * recTypeString(char * acrcloud_rec_type_str, ACRCLOUD_OPT_REC_TYPE acrcloud_rec_type)
 {
 	switch (acrcloud_rec_type)
@@ -55,6 +67,14 @@ char * recTypeString(char * acrcloud_rec_type_str, ACRCLOUD_OPT_REC_TYPE acrclou
 	return acrcloud_rec_type_str;
 }
 
+/**
+ * Does the song's snippet recognition by calling the ACR CLOUD service
+ * acrConfig: Configuration to call the service
+ * pcm_buffer,
+ * pcm_buffer_len,
+ * nchannels,
+ * sample_rate
+ */
 char * recognize(acrcloud_config acrConfig,
 				char * pcm_buffer,
 				int pcm_buffer_len,

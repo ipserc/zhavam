@@ -10,18 +10,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "jsmn.h"
-#include "list.h"
-
 #include "zhavam.h"
-#include "zhavam_acrcloud.h"
 #include "zhavam_alsa.h"
-#include "zhavam_config.h"
-#include "zhavam_devices.h"
 #include "zhavam_errtra.h"
-#include "zhavam_jsonparser.h"
-#include "acrcloud_recognizer.h"
+
 
 /**
  * "member" variable with the text names of the SND_PCM_FORMAT used
@@ -52,27 +44,31 @@ int zhv_snd_pcm_format_int[] = {
 };
 
 /**
- * get "method" to "memeber" variable zhv_snd_pcm_format_str
+ * get "method" to "member" variable zhv_snd_pcm_format_str
+ * @returns the array with SND_PCM_FORMAT names
  */
-char * getZhvSndPcmFormatStr(void)
+char ** getZhvSndPcmFormatStr(void)
 {
 	return zhv_snd_pcm_format_str;
 }
 
 /**
  * Looks for the SND_PCM_FORMAT enumerator supported by zhavam.
- * Returns the SND_PCM_FORMAT enumerator or SND_PCM_FORMAT_UNKNOWN if not found
+ * @param strSndPcmFormat: String to receive the SND_PCM_FORMAT name
+ * @return the SND_PCM_FORMAT enumerator or SND_PCM_FORMAT_UNKNOWN if not found
  */
-snd_pcm_format_t sndPcmFormatDecode(char * sndPcmFormat)
+snd_pcm_format_t sndPcmFormatDecode(const char * strSndPcmFormat)
 {
 	for(int i = IND_PCM_FORMAT_S8; i < IND_LAST_PCM_FORMAT; ++i )
-		if (!strcmp(sndPcmFormat, zhv_snd_pcm_format_str[i] )) return zhv_snd_pcm_format_int[i];
+		if (!strcmp(strSndPcmFormat, zhv_snd_pcm_format_str[i] )) return zhv_snd_pcm_format_int[i];
 	return SND_PCM_FORMAT_UNKNOWN;
 }
 
 /**
  * Looks for the SND_PCM_FORMAT name supported by zhavam.
- * Returns the SND_PCM_FORMAT name or "SND_PCM_FORMAT_S8" if not found
+ * @param strSndPcmFormat: String to receive the SND_PCM_FORMAT name
+ * @param sndPcmFormat: The enumerator for the sound pcm format
+ * @return the SND_PCM_FORMAT name or "SND_PCM_FORMAT_S8" if not found
  */
 char * pcmFormatString(char * strSndPcmFormat, snd_pcm_format_t sndPcmFormat)
 {
@@ -95,9 +91,9 @@ char * pcmFormatString(char * strSndPcmFormat, snd_pcm_format_t sndPcmFormat)
  * Opening device tasks
  * 	snd_pcm_open
  * 	snd_pcm_hw_params_malloc
- * @param char * devID: The name of the device to open
- * @param snd_pcm_t ** ptr_capture_handle: Capture handler structure
- * @param snd_pcm_hw_params_t ** ptr_hw_params: Pointer to the hardware params structure
+ * @param devID: The name of the device to open
+ * @param ptr_capture_handle: Capture handler structure
+ * @param ptr_hw_params: Pointer to the hardware params structure
  * @return the status of the operations
  */
 int openDevice(char * devID,
@@ -134,10 +130,10 @@ int openDevice(char * devID,
  * 	snd_pcm_hw_params_set_access
  * 	snd_pcm_hw_params_set_format
  * 	snd_pcm_hw_params
- * @param snd_pcm_t * capture_handle
- * @param snd_pcm_hw_params_t * hw_params
- * @param snd_pcm_format_t format
- * @param unsigned int * rate
+ * @param capture_handle: Capture handler structure
+ * @param hw_params: Pointer to the hardware params structure
+ * @param format: Sound PCM format
+ * @param rate: Recording rate
  * @return the status of the operations
  */
 int setupDevice(snd_pcm_t * capture_handle,
@@ -214,11 +210,11 @@ int setupDevice(snd_pcm_t * capture_handle,
 
 /**
  * Device set up and PCM preparation
- * @param char * devID: The name of the device to open
- * @param snd_pcm_t * capture_handle: Capture handler structure
- * @param snd_pcm_hw_params_t * hw_params: Pointer to the hardware params structure
- * @param snd_pcm_format_t format: Sound PCM format
- * @param unsigned int * rate: Recording rate
+ * @param devID: The name of the device to open
+ * @param capture_handle: Capture handler structure
+ * @param hw_params: Pointer to the hardware params structure
+ * @param format: Sound PCM format
+ * @param rate: Recording rate
  * @return the status of the operations
  */
 int setupAudioDevice(char * devID,
@@ -238,7 +234,7 @@ int setupAudioDevice(char * devID,
 /**
  * PCM prepare tasks
  * 	snd_pcm_prepare
- * @param snd_pcm_t * capture_handle: Capture handler structure
+ * @param capture_handle: Capture handler structure
  * @return the status of the operation
  */
 int pcmPrepare(snd_pcm_t * capture_handle)
@@ -255,9 +251,9 @@ int pcmPrepare(snd_pcm_t * capture_handle)
 }
 
 /**
- * Prints in console the content of the PCM Buffer
- * @param size_t size: Size of the buffer
- * @param char * pcm_buffer. Pointer to the buffer
+ * Prints by console the content of the PCM Buffer
+ * @param size: Size of the buffer
+ * @param pcm_buffer. Pointer to the buffer
  */
 void printPcmBuffer(size_t size,
 					char * pcm_buffer)
@@ -269,9 +265,9 @@ void printPcmBuffer(size_t size,
 }
 
 /**
- * Writes the content of the PCM Buffer in a file called "grabacion.raw" in the current directory
- * @param size_t size: Size of the buffer
- * @param char * pcm_buffer. Pointer to the buffer
+ * Writes the content of the PCM Buffer into a file called "grabacion.raw" in the current directory
+ * @param size: Size of the buffer
+ * @param pcm_buffer. Pointer to the buffer
  */
 void writePcmBuffer(size_t size,
 					char * pcm_buffer)
@@ -286,10 +282,10 @@ void writePcmBuffer(size_t size,
  * 	snd_pcm_hw_params_get_channels
  * 	snd_pcm_readi
  * 	acr_recognize_by_pcm
- * @param snd_pcm_t * capture_handle: Capture handler structure
- * @param snd_pcm_hw_params_t * hw_params: Pointer to the hardware params structure
- * @param snd_pcm_format_t format: Sound PCM format
- * @param unsigned int * rate: Recording rate
+ * @param capture_handle: Capture handler structure
+ * @param hw_params: Pointer to the hardware params structure
+ * @param format: Sound PCM format
+ * @param rate: Recording rate
  * @return the status of the operations
  */
 int startRecord(snd_pcm_t * capture_handle,
@@ -318,9 +314,9 @@ int startRecord(snd_pcm_t * capture_handle,
 		gtkWarning("%s", STATUS_MESSAGE);
 		return errno;
 	}
-
+	sprintf(STATUS_MESSAGE, "START READING from audio interface...");
+	gtkSetStatusZhvLabel(STATUS_MESSAGE);
 	for (int i = 0; i < 3; ++i) {
-		sprintf(STATUS_MESSAGE, "START READING from audio interface");
 		if ((errno = snd_pcm_readi(capture_handle, pcm_buffer, pcm_buffer_frames)) != pcm_buffer_frames) {
 			sprintf (STATUS_MESSAGE, "read from audio interface failed (%s)",
 				  snd_strerror(errno));
@@ -328,11 +324,17 @@ int startRecord(snd_pcm_t * capture_handle,
 			return errno;
 		}
 		sprintf(STATUS_MESSAGE, "read %d done", i);
+		/* FOR DEBUGGING PURPOSES */
+		// ---- reconResponse = malloc(5000); sprintf( reconResponse, "");
+		// ---- reconResponse = malloc(5000); sprintf( reconResponse, "{\"status\":{\"msg\":\"No result\",\"code\":1001,\"version\":\"1.0\"}}");
+		// ---- reconResponse = malloc(5000); sprintf( reconResponse, "{\"status\":{\"msg\":\"Success\",\"code\":0,\"version\":\"1.0\"},\"metadata\":{\"music\":[{\"external_ids\":{\"isrc\":\"GBAJH0600292\",\"upc\":\"0094636010359\"},\"play_offset_ms\":33340,\"external_metadata\":{\"spotify\":{\"album\":{\"name\":\"Violator\",\"id\":\"1v6DV6Bt0kDsX1Vd1f7CEe\"},\"artists\":[{\"name\":\"Depeche Mode\",\"id\":\"762310PdDnwsDxAQxzQkfX\"}],\"track\":{\"name\":\"Enjoy The Silence - 2006 Digital Remaster\",\"id\":\"3enkvSCLKtGCCXfRyEK9Fl\"}},\"deezer\":{\"album\":{\"name\":\"The Best Of Depeche Mode Volume 1\",\"id\":86578},\"artists\":[{\"name\":\"Depeche Mode\",\"id\":545}],\"genres\":[{\"id\":85}],\"track\":{\"name\":\"Enjoy The Silence (Remastered Version Original)\",\"id\":726176}}},\"acrid\":\"f9377e92e75d5dee3f0cd90a9c163f6a\",\"artists\":[{\"name\":\"Depeche Mode\"}],\"label\":\"(C) 2006 Depeche Mode under exclusive licence to Mute Records LtdThis label copy information is the subject of copyright protection. All rights reserved.(C) 2006 Mute Records Ltd\",\"release_date\":\"1990-03-19\",\"title\":\"Enjoy The Silence - 2006 Digital Remaster\",\"duration_ms\":372813,\"album\":{\"name\":\"Violator\"},\"result_from\":3,\"score\":82},{\"external_ids\":{\"isrc\":\"GBAJH0602198\",\"upc\":\"093624425663\"},\"play_offset_ms\":33440,\"release_date\":\"2006-11-14\",\"external_metadata\":{\"musicstory\":{\"album\":{\"id\":\"162576\"},\"release\":{\"id\":\"815068\"},\"track\":{\"id\":\"2206341\"}},\"deezer\":{\"album\":{\"name\":\"The Best Of Depeche Mode Volume 1\",\"id\":\"86578\"},\"artists\":[{\"name\":\"Depeche Mode\",\"id\":\"545\"}],\"track\":{\"name\":\"Enjoy The Silence (Remastered Version) (Original)\",\"id\":\"726176\"}},\"spotify\":{\"album\":{\"name\":\"Classic Rock: Les Classiques de Marc Ysaye_90s00s\",\"id\":\"3fjD2coxF2SQwLRcjm0ctg\"},\"artists\":[{\"name\":\"Depeche Mode\",\"id\":\"762310PdDnwsDxAQxzQkfX\"}],\"track\":{\"name\":\"Enjoy The Silence\",\"id\":\"6pznJ6pWLmxc69pAUVfgRq\"}},\"lyricfind\":{\"lfid\":\"001-9836867\"},\"youtube\":{\"vid\":\"aGSKrC7dGcY\"}},\"artists\":[{\"name\":\"Depeche Mode\"}],\"genres\":[{\"name\":\"Alternative\"}],\"title\":\"Enjoy The Silence (Remastered Version) (Original)\",\"label\":\"Sire//Reprise\",\"duration_ms\":372000,\"album\":{\"name\":\"The Best Of Depeche Mode Volume 1\"},\"acrid\":\"4ac1fdcab64947a971dee1163f3f2374\",\"result_from\":3,\"score\":100}],\"timestamp_utc\":\"2018-05-19 22:08:18\"},\"cost_time\":0.0060000419616699,\"result_type\":0}");
+		// ---- reconResponse = malloc(5000); sprintf( reconResponse, "{\"status\":{\"msg\":\"Success\",\"code\":0,\"version\":\"1.0\"},\"metadata\":{\"music\":[{\"external_ids\":{\"isrc\":\"GBAHT8403350\",\"upc\":\"022924048364\"},\"play_offset_ms\":35560,\"title\":\"All I Need Is Everything\",\"external_metadata\":{\"musicstory\":{\"track\":{\"id\":\"424343\"}},\"youtube\":{\"vid\":\"0dbNUKy6QXM\"},\"spotify\":{\"album\":{\"name\":\"Knife\",\"id\":\"3eAbnzPwbYmbHdXQ9fmfXv\"},\"artists\":[{\"name\":\"Aztec Camera\",\"id\":\"7sbwBqdkynNUDgiWU3TQ5J\"}],\"track\":{\"name\":\"All I Need Is Everything\",\"id\":\"6DXL1O6MDN9kcb1yWbtDGK\"}},\"lyricfind\":{\"lfid\":\"001-4691140\"},\"deezer\":{\"album\":{\"name\":\"Knife\",\"id\":\"83860\"},\"artists\":[{\"name\":\"Aztec Camera\",\"id\":\"12940\"}],\"track\":{\"name\":\"All I Need Is Everything\",\"id\":\"698323\"}}},\"artists\":[{\"name\":\"Aztec Camera\"}],\"genres\":[{\"name\":\"Pop\"}],\"release_date\":\"1991-07-09\",\"label\":\"WM UK\",\"duration_ms\":343227,\"album\":{\"name\":\"Knife\"},\"acrid\":\"dbcb46dcdf7c79035a65713932e0668e\",\"result_from\":3,\"score\":100}],\"timestamp_utc\":\"2018-05-18 15:34:37\"},\"cost_time\":0.013999938964844,\"result_type\":0}");
+		/* ********************** */
 		reconResponse = recognize(acrConfig, pcm_buffer, pcm_buffer_len, nchannels, sample_rate);
 		TRACE("ACRCloud response:%s", reconResponse);
 		getAcrData(reconResponse, acrResponse);
 		free(reconResponse);
-		if (acrResponse->status.code[0] == '0') break;
+		if (atoi(acrResponse->status.code) == 0) break;
 	}
 	free(pcm_buffer);
 	sprintf(STATUS_MESSAGE, "pcm_buffer freed");
@@ -341,7 +343,7 @@ int startRecord(snd_pcm_t * capture_handle,
 
 /**
  * Close the audio interface device
- * @param snd_pcm_t * capture_handle: Capture handler structure
+ * @param capture_handle: Capture handler structure
  * @return the status of the operation
  */
 int closeDevice(snd_pcm_t * capture_handle)
