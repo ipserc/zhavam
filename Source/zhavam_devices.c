@@ -8,21 +8,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "jsmn.h"
-#include "list.h"
 #include "acrcloud_recognizer.h"
-
-#include "zhavam.h"
-#include "zhavam_alsa.h"
-#include "zhavam_config.h"
 #include "zhavam_devices.h"
 #include "zhavam_errtra.h"
-#include "zhavam_jsonparser.h"
-#include "zhavam_acrcloud.h"
 
 /**
  * Initializes the pcmDev_t structure with the initial data
- * @param pcmDev_t * pcmDev
+ * @param pcmDev
  */
 void initPCMDev(pcmDev_t * pcmDev)
 {
@@ -39,7 +31,7 @@ void initPCMDev(pcmDev_t * pcmDev)
 /**
  * Prints the content of pcmDevItem
  * Used for debug & trace purposes
- * @param pcmDev_t * pcmDevItem
+ * @param pcmDevItem
  */
 void printDevice(pcmDev_t * pcmDevItem)
 {
@@ -74,11 +66,11 @@ void printAllDevices(pcmDev_t * pcmDev)
 
 /**
  * Splits the device information in separated fields: SCDid, devName, devSubName, playCapture
- * @param char * buffer
- * @param char * SCDid
- * @param char * devName
- * @param char * devSubName
- * @param char * playCapture
+ * @param buffer
+ * @param SCDid
+ * @param devName
+ * @param devSubName
+ * @param playCapture
  */
 void split(char * buffer, char * SCDid, char * devName, char * devSubName, char * playCapture)
 {
@@ -103,7 +95,7 @@ void split(char * buffer, char * SCDid, char * devName, char * devSubName, char 
 /**
  * Gets the PCM devices stored in /proc/asound/pcm
  * Kept for historic purposes
- * @param list_t * pcmDevList
+ * @param pcmDevList
  * @return list_t * pcmDevList
  */
 list_t * getPCMDevices(list_t * pcmDevList)
@@ -136,7 +128,7 @@ list_t * getPCMDevices(list_t * pcmDevList)
 
 /**
  * Gets the PCM RECORDING devices stored in /proc/asound/pcm
- * @param list_t * pcmDevList
+ * @param pcmDevList
  * @return list_t * pcmDevList
  */
 list_t * getPCMRecDevices(list_t * pcmRecDevList)
@@ -170,18 +162,16 @@ list_t * getPCMRecDevices(list_t * pcmRecDevList)
 /**
  * Sets the pcmRecDevList from the values kept in the pcmDevList
  * No longer used, kept for historic purposes
- * @param list_t * pcmDevList
- * @param list_t * pcmRecDevList
+ * @param pcmDevList
+ * @param pcmRecDevList
  * @return list_t * pcmRecDevList
  */
 list_t *  setPcmRecDevList(list_t * pcmDevList, list_t * pcmRecDevList)
 {
-	bool captureDevs = false;
 	for(node_t * ptr = pcmDevList->head;ptr;ptr = ptr->next)
 	{
 		if (((pcmDev_t*)(ptr->item))->capture)
 		{
-			captureDevs = true;
 			pcmRecDevList = listAppend(pcmRecDevList, ptr->item, sizeof(pcmDev_t));
 		}
 	}

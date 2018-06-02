@@ -10,16 +10,23 @@
 #define SOURCE_ZHAVAM_CONFIG_H_
 
 #include <gtk/gtk.h>
+#include "zhavam_alsa.h"
+#include "zhavam_devices.h"
 
-#include "list.h"
-#include "zhavam.h"
+/**
+ * ZhavamConf structure
+ */
+typedef struct {
+	acrcloud_config acrcloud;
+	alsa_config alsa;
+} zhavamConf_t;
 
 void gtkSetAcrCloudHostEntry(zhavamConf_t *ptZhavamConf);
-char *gtkGetAcrCloudHostEntry(void);
+const char *gtkGetAcrCloudHostEntry(void);
 void gtkSetAcrCloudAccessKeyEntry(zhavamConf_t *ptZhavamConf);
-char *gtkGetAcrCloudAccessKeyEntry(void);
+const char *gtkGetAcrCloudAccessKeyEntry(void);
 void gtkSetAcrCloudAccessSecretEntry(zhavamConf_t *ptZhavamConf);
-char *gtkGetAcrCloudAccessSecretEntry(void);
+const char *gtkGetAcrCloudAccessSecretEntry(void);
 void gtkSetAcrCloudTimeOutSpinButton(zhavamConf_t *ptZhavamConf);
 int gtkGetAcrCloudTimeOutSpinButton(void);
 void gtkSetAcrCloudRecTypeComboBoxText(zhavamConf_t *ptZhavamConf);

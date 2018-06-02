@@ -50,8 +50,8 @@ typedef struct
 /*
  * prototypes
  */
-char *getZhvSndPcmFormatStr(void);
-snd_pcm_format_t sndPcmFormatDecode(char *sndPcmFormat);
+char **getZhvSndPcmFormatStr(void);
+snd_pcm_format_t sndPcmFormatDecode(const char * strSndPcmFormat);
 char *pcmFormatString(char *strSndPcmFormat, snd_pcm_format_t sndPcmFormat);
 int openDevice(char *devID, snd_pcm_t **ptr_capture_handle, snd_pcm_hw_params_t **ptr_hw_params);
 int setupDevice(snd_pcm_t *capture_handle, snd_pcm_hw_params_t *hw_params, snd_pcm_format_t format, unsigned int *rate);

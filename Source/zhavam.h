@@ -9,12 +9,10 @@
 #define SOURCE_ZHAVAM_H_
 
 #include <gtk/gtk.h>
+#include "zhavam_config.h"
 
-#include "list.h"
-#include "zhavam_acrcloud.h"
-#include "zhavam_alsa.h"
-
-#define VERSION "1.1"
+#define VERSION "1.2"
+#define COMPILATION "2018-06-02"
 
 #define NORMAL_CURSOR GDK_LEFT_PTR
 
@@ -26,14 +24,6 @@
 #define ZHVHOMELEN 50
 #define ZHVDIR ".zhavam"
 #define ZHVFILENAME "zhavam.conf"
-
-/**
- * ZhavamConf structure
- */
-typedef struct {
-	acrcloud_config acrcloud;
-	alsa_config alsa;
-} zhavamConf_t;
 
 /*
  * Prototypes

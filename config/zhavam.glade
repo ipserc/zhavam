@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.0 -->
+<!-- Generated with glade 3.22.1 
+
+Copyright (C) 
+
+This file is part of .
+
+ is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with .  If not, see <http://www.gnu.org/licenses/>.
+
+-->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <!-- interface-license-type gplv3 -->
   <object class="GtkMenu">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -22,6 +42,37 @@
     <property name="step_increment">10</property>
     <property name="page_increment">100</property>
   </object>
+  <object class="GtkTextBuffer" id="historyTextBuffer">
+    <property name="text" translatable="yes">Zhavam was born because of I was looking for a Shazam-like
+application for Linux, but after several tries in internert I couldn't find 
+something that gives me the basic functionality, this is, sound recognition.
+
+After looking for something related with music recognition in the web 
+I found ACRCloud.
+
+ACRCloud gives you the services required for accessing their database
+and ask it about a piece of a song. If you are lucky, the ACRCloud service 
+recognizes your song piece from the millions kept in the database, and it 
+reply to your request by giving you some data about of the song you sent.
+
+Zhavam connects with Alsa to record a small piece of the song, and then 
+sends it to ACRCloud. ACRCloud responds with a Json message with the 
+information about the Title of the song, the artist, the album, the genre
+the year, etc. zhavam parses this message putting the most relevant 
+information in the Track Info text view.
+
+For using zhavam in your computer you have to have an account in ACRCloud. 
+Registering in ACRCloud brings you the host to access through the 
+access key and access secret required to start a session with teh server.
+
+Before using zhavam, please register yourself in ACRCloud and put the host, 
+access key and access secret into the config file of zhavam.</property>
+  </object>
+  <object class="GtkTextView" id="historyTextView">
+    <property name="visible">True</property>
+    <property name="can_focus">True</property>
+    <property name="buffer">historyTextBuffer</property>
+  </object>
   <object class="GtkTextBuffer" id="trackInfoTextBuffer"/>
   <object class="GtkImage" id="zhavamImage">
     <property name="visible">True</property>
@@ -37,6 +88,9 @@
     <property name="default_width">-1</property>
     <property name="default_height">-1</property>
     <property name="icon">Zhavam.01.svg.png</property>
+    <child>
+      <placeholder/>
+    </child>
     <child>
       <object class="GtkBox" id="zhavamMainWindowBox">
         <property name="visible">True</property>
@@ -280,7 +334,7 @@
             <property name="shadow_type">etched-out</property>
             <child>
               <object class="GtkAlignment" id="trackInfoAlignment">
-                <property name="width_request">50</property>
+                <property name="width_request">70</property>
                 <property name="height_request">130</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -333,6 +387,8 @@
           <object class="GtkFrame" id="statusFrame">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="margin_left">3</property>
+            <property name="margin_right">3</property>
             <property name="margin_top">3</property>
             <property name="margin_bottom">3</property>
             <property name="label_xalign">0</property>
@@ -349,6 +405,8 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">end</property>
+                    <property name="margin_left">3</property>
+                    <property name="margin_right">3</property>
                     <property name="margin_top">3</property>
                     <property name="margin_bottom">3</property>
                     <property name="label" translatable="yes">Status label</property>
@@ -386,45 +444,23 @@
     <property name="type_hint">dialog</property>
     <property name="transient_for">zhavamMainWindow</property>
     <property name="attached_to">menuHelpAbout</property>
-    <property name="program_name">Zhavam (powered by Gtk+ 3.12)</property>
-    <property name="version">1.0</property>
+    <property name="program_name">Zhavam (powered by Gtk+ 3.22.1)</property>
+    <property name="version">1.2</property>
     <property name="comments" translatable="yes">Zhavam helps you to identify the music or song that is beign reproduced from or outside of your computer. You can also try singing or whistle the song you are looking for, but  you need have got a micro connected to it.</property>
     <property name="website">https://github.com/ipserc/zhavam</property>
     <property name="website_label" translatable="yes">Zhavam</property>
     <property name="license" translatable="yes">Este programa viene SIN NINGUNA GARANTÍA.
 Consulte la &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;Licencia Pública General de GNU, versión 3 o posterior&lt;/a&gt; para obtener más detalles.</property>
-    <property name="authors">ipserc (aka Jose Luis)
- 
-Zhavam was born because of I was looking for a Shazam-like
-application for Linux, but after several tries in internert I couldn't find 
-anything that gives me the basic functionallity, it is, sound recognition.
-
-After looking for something related with music recognition in the web 
-I found ACRCloud.
-
-ACRCloud gives you the services required for accessing thier database
-and ask it about a piece of a song. If you are lucky, the ACRCloud service 
-recognizes your song piece from the millions kept in the database, and it 
-reply to your request by giving you some data about of the song you sent.
-
-Zhavam connects with Alsa to record a small piece of the song, and then 
-sends it to ACRCloud. ACRCloud responds with a Json message with the 
-information about the Title of the song, the artist, the album, the genre
-the year, etc. zhavam parses this message putting the most relevant 
-information in the Track Info text view.
-
-For using zhavam in your computer you have to have an account in ACRCloud. 
-Registering in ACRCloud brings you the host to access through the 
-acces key and access secret required to start a session with teh server.
-
-Before using zhavam, please register yourself in ACRCloud and put the host, 
-access key and access secret into the config file of zhavam.</property>
+    <property name="authors">ipserc (aka Jose Luis)</property>
     <property name="logo">Zhavam.01.svg</property>
     <property name="wrap_license">True</property>
     <property name="license_type">gpl-3-0</property>
     <signal name="close" handler="gtk_widget_hide" swapped="no"/>
     <signal name="delete-event" handler="gtk_widget_hide" swapped="no"/>
     <signal name="destroy" handler="gtk_widget_hide" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="visible">True</property>
@@ -469,6 +505,9 @@ access key and access secret into the config file of zhavam.</property>
     <property name="attached_to">zhavamMainWindow</property>
     <signal name="close" handler="gtk_widget_hide" swapped="no"/>
     <signal name="delete-event" handler="gtk_widget_hide" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -1015,6 +1054,9 @@ access key and access secret into the config file of zhavam.</property>
     <signal name="close" handler="gtk_widget_hide" swapped="no"/>
     <signal name="destroy" handler="gtk_widget_hide" swapped="no"/>
     <signal name="destroy-event" handler="gtk_widget_hide" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>

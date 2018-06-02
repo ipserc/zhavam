@@ -11,242 +11,158 @@
 #include <string.h>
 
 #include "acrcloud_recognizer.h"
-#include "jsmn.h"
-#include "list.h"
-
-#include "zhavam_errtra.h"
 #include "zhavam_jsonparser.h"
-
-#define JSMN_PARENT_LINKS
+#include "zhavam_errtra.h"
 
 /**
- * Macro substitutions for JSONParser token managing
+ * Initializes the fields of the acr_data_t to an empty strings
+ * @param acrData: pointer to acr_data_t variable
  */
-#define GET_TOKEN_LEN(token) token->end - token->start
-
-int listToken(list_t * tokenList, char * tpath)
+void initAcrDataT(acr_data_t * acrData)
 {
-	token_t token;
-	char * strIndex;
-	char * tpathtok = strtok(tpath, ".");
+	acrData->status.code[0] = '\0';
+	acrData->status.msg[0] = '\0';
+	acrData->status.version[0] = '\0';
+	acrData->metadata.music.acrid[0] = '\0';
+	acrData->metadata.music.album[0] = '\0';
+	for (int i = 0; i < MAX_ITEMS; ++i)
+		acrData->metadata.music.artists[0][i] = '\0';
+	acrData->metadata.music.duration_ms[0] = '\0';
+	acrData->metadata.music.external_ids[0] = '\0';
+	for (int i = 0; i < MAX_ITEMS; ++i)
+		acrData->metadata.music.genres[0][i] = '\0';
+	acrData->metadata.music.label[0] = '\0';
+	acrData->metadata.music.play_offset_ms[0] = '\0';
+	acrData->metadata.music.release_date[0] = '\0';
+	acrData->metadata.music.result_from[0] = '\0';
+	acrData->metadata.music.score[0] = '\0';
+	acrData->metadata.music.title[0] = '\0';
+	acrData->metadata.music.external_metadata.youtube_vid[0] = '\0';
+	acrData->metadata.music.external_metadata.spotify.album_id[0] = '\0';
+	acrData->metadata.music.external_metadata.spotify.artist_id[0] = '\0';
+	acrData->metadata.music.external_metadata.spotify.track_id[0] = '\0';
+}
 
-	while (tpathtok)
+/**
+* Replaces the first occurrence of f (rom) car to t (o) car
+* It's a trick way to change the metadata.music[0] index.
+* @param string: String to make the substitution
+* @param fcar: character to find
+* @param tcar: Character to put in place
+* @return A pointer to the string
+*/
+char * substMusicIndex(char * string, char fcar, char tcar)
+{
+	char * ptr = string;
+	while (*ptr)
 	{
-		token.index = 0;
-		token.jtype = JSMN_OBJECT;
-		strIndex = strchr(tpathtok, '[');
-		if (strIndex)
+		if (*ptr++ == fcar)
 		{
-			*strIndex++ = '\0';
-			token.jtype = JSMN_ARRAY;
-			while (*strIndex != ']')
-			{
-				token.index *= 10;
-				token.index += *strIndex++ -'0';
-			}
-		}
-
-		token.name = malloc(strlen(tpathtok));
-		strcpy(token.name, tpathtok);
-		tokenList = listAppend(tokenList, &token, sizeof(token));
-		tpathtok = strtok(NULL, ".");
-	}
-	return (int)listItemsCount(tokenList);
-}
-
-void printTok(void * param)
-{
-	token_t * token  = (token_t *)param;
-	printf("token->name:%s\n", token->name);
-	printf("token->jtype:%d\n", token->jtype);
-	printf("token->index:%d\n", token->index);
-}
-
-void freeTokenList(list_t * tokenList)
-{
-	token_t * token;
-	while (tokenList->tail->prev)
-	{
-		token = tokenList->tail->item;
-		free(token->name);
-		listDrop(tokenList);
-	}
-	free(tokenList);
-}
-
-int parseJSON(char * jsonMsg, jsmn_parser * parser, jsmntok_t * jsonTokens)
-{
-//	jsmntok_t jsonTokens[MAX_NUM_OF_TOKENS];
-	memset(jsonTokens, 0, sizeof(jsmntok_t) * MAX_NUM_OF_TOKENS);
-	jsmn_init(parser);
-	int tokenCount = jsmn_parse(parser, jsonMsg, strlen(jsonMsg), jsonTokens, MAX_NUM_OF_TOKENS);
-	if (tokenCount < 0) {
-		  printf("unable to read tokens from json message");
-		  return tokenCount;
-	}
-	return tokenCount;
-}
-
-void nextToken(jsmntok_t ** jsonToken, int * jsonTokNbr)
-{
-	++(*jsonToken);
-	++(*jsonTokNbr);
-}
-
-void prevToken(jsmntok_t ** jsonToken, int * jsonTokNbr)
-{
-	--(*jsonToken);
-	--(*jsonTokNbr);
-}
-
-jsmntok_t *  findJsonToken(char * jsonMsg, list_t * tokenList, jsmntok_t * jsonTokens, int * jsonTokNbr, int tokenCount)
-{
-	jsmntok_t * jsonToken = jsonTokens;
-	node_t * tokenListNode = tokenList->head;
-	token_t * token = (token_t*)((node_t*)(tokenListNode->item));
-	char * jsonTokenItem;
-	int indexCount = 0;
-	int tokenIndex = 0;
-
-	if (GET_TOKEN_LEN(jsonToken) < 0) return (jsmntok_t *) NULL;
-	if (!memcmp("", &jsonMsg[jsonToken->start], (size_t)GET_TOKEN_LEN(jsonToken))) return (jsmntok_t *) NULL;
-	nextToken(&jsonToken, jsonTokNbr);
-	while (*jsonTokNbr < tokenCount)
-	{
-		jsonTokenItem = malloc((size_t)GET_TOKEN_LEN(jsonToken)+1);
-		jsonTokenItem[(size_t)GET_TOKEN_LEN(jsonToken)] = '\0';
-		strncpy(jsonTokenItem, &jsonMsg[jsonToken->start], (size_t)GET_TOKEN_LEN(jsonToken));
-		//TRACE("Token to find token->name:%s", token->name);
-		//TRACE("jsonTokenItem:%s", jsonTokenItem);
-		if (!strcmp(token->name, jsonTokenItem))
-		{
-			if (token->jtype == JSMN_ARRAY) tokenIndex = token->index;
-			if (tokenIndex == indexCount)
-			{
-				indexCount = 0;
-				if (tokenListNode->next)
-				{
-					tokenListNode = tokenListNode->next;
-					token = (token_t*)((node_t*)(tokenListNode->item));
-					//TRACE("**** %s Token to find token->name:%s", (tokenListNode->next) ? "Next" : "Last", token->name);
-				}
-				else // item found
-				{
-					free(jsonTokenItem);
-					return jsonToken;
-				}
-			}
-			else ++indexCount;
-		}
-		free(jsonTokenItem);
-		nextToken(&jsonToken, jsonTokNbr);
-	}
-	return (jsmntok_t *)NULL;
-}
-
-void printJsonTokens(char * jsonMsg, jsmntok_t * jsonTokens, int tokenCount)
-{
-	jsmntok_t * jsonToken = jsonTokens;
-	int  jsonTokNbr;
-	char tokenfmt[50];
-
-	nextToken(&jsonToken, &jsonTokNbr);
-	while (jsonTokNbr < tokenCount)
-	{
-		sprintf(tokenfmt, "%s%d%s", "Token:%.", (size_t)GET_TOKEN_LEN(jsonToken), "s start:%d end:%d size:%d type:%d parent:%d\n");
-		printf(tokenfmt, &jsonMsg[jsonToken->start], jsonToken->start, jsonToken->end, jsonToken->size, jsonToken->type, jsonToken->parent);
-		nextToken(&jsonToken, &jsonTokNbr);
-	}
-}
-
-void printJsonToken(char * jsonMsg, jsmntok_t * jsonToken)
-{
-	char tokenfmt[50];
-
-	sprintf(tokenfmt, "%s%d%s", "Token:%.", (size_t)GET_TOKEN_LEN(jsonToken), "s start:%d end:%d size:%d type:%d parent:%d\n");
-	printf(tokenfmt, &jsonMsg[jsonToken->start], jsonToken->start, jsonToken->end, jsonToken->size, jsonToken->type, jsonToken->parent);
-}
-
-void printJsonTokenValue(char * jsonMsg, jsmntok_t * jsonToken)
-{
-	printJsonToken(jsonMsg, ++jsonToken);
-}
-
-char * getTokenValue(char * tpath, char * jsonMsg, jsmntok_t * jsonTokens, int tokenCount)
-{
-	list_t * tokenList;
-	jsmntok_t * jsonTokenFound;
-	int jsonTokNbr = 0;
-	char * tokenValue = (char*)NULL;
-	char * tokenPath = malloc(strlen(tpath));
-	char tokenfmt[50];
-
-	sprintf(tokenPath, "%s", tpath);
-	tokenList = listNew(tokenList);
-	//TRACE("tokenPath:%s:", tokenPath);
-	if (!listToken(tokenList, tokenPath)) TRACE("%s", "Unable to generate token path list.");
-	else
-	{
-		//listPrint(tokenList, (printTok));
-		jsonTokenFound = findJsonToken(jsonMsg, tokenList, jsonTokens, &jsonTokNbr, tokenCount);
-		if (jsonTokenFound)
-		{
-			++jsonTokenFound;
-			//printJsonToken(jsonMsg, --jsonTokenFound);
-			//printJsonToken(jsonMsg, ++jsonTokenFound);
-			tokenValue = malloc((size_t)GET_TOKEN_LEN(jsonTokenFound));
-			sprintf(tokenfmt, "%s%d%s", "%.", (size_t)GET_TOKEN_LEN(jsonTokenFound), "s");
-			sprintf(tokenValue, tokenfmt, &jsonMsg[jsonTokenFound->start]);
-			TRACE("%s:%s", tpath, tokenValue);
-		}
-		else
-		{
-			tokenValue = malloc(1);
-			*tokenValue = '\0';
-			TRACE("%s:Token not found", tpath);
+			*ptr = tcar;
+			break;
 		}
 	}
-	free(tokenPath);
-	freeTokenList(tokenList);
-	return tokenValue;
+	return string;
 }
 
-char * setUpAcrResponseField(char * tpath, char * acrResponseField, char * jsonMsg, jsmntok_t * jsonTokens, int tokenCount)
+/**
+ * Gets the value from the jsmn structure and copies it into the destination. Returns an empty string if not found.
+ * @param tpath: Path to the wanted value
+ * @param musicIndex: New index for metadata.music[0]
+ * @param acrResponseField: Destination variable in which the found value is copied.
+ * @param jsonMsg: JSON message in which the value is sought
+ * @param jsmnTokenArray: JSMN Tokens array
+ * @return A pointer to the destination variable in which the found value is copied.
+ */
+char * setUpAcrResponseField(char * tpath, int musicIndex, char * acrResponseField, char * jsonMsg, jsmntok_t * jsmnTokenArray)
 {
+	char * btpath;
 	char * tokenValue;
-	tokenValue = getTokenValue(tpath, jsonMsg, jsonTokens, tokenCount);
-	sprintf(acrResponseField, "%s", tokenValue);
+
+	btpath = malloc(sizeof(char)*(strlen(tpath)+1));
+	sprintf(btpath, "%s", tpath);
+	if (musicIndex != 0) btpath = substMusicIndex(btpath, '0', '0' + musicIndex);
+
+	tokenValue = getTokenValue(btpath, jsonMsg, jsmnTokenArray);
+	sprintf(acrResponseField, "%s", tokenValue ? tokenValue : "");
 	free(tokenValue);
+	free(btpath);
 	return acrResponseField;
 }
 
+/**
+ * Runs over the JSON Message to find the best scored music item
+ * @param jsonMsg: JSON message in which the value is sought
+ * @param jsmnTokenArray: JSMN Tokens array
+ * @return The index of the best music score
+ */
+int getIndexBestMusicScore(char * jsonMsg, jsmntok_t * jsmnTokenArray)
+{
+	int bestMusicScore = 0;
+	int musicScore = 0;
+	int bestIndex = 0;
+	int index = 0;
+	char * tokenValue;
+	char tpath[25];
+
+	sprintf(tpath, "%s%d%s", "metadata.music[", index, "].score");
+	while ((tokenValue = getTokenValue(tpath, jsonMsg, jsmnTokenArray)) != NULL)
+	{
+		musicScore = atoi(tokenValue);
+		free(tokenValue);
+		if (bestMusicScore < musicScore)
+		{
+			bestMusicScore = musicScore;
+			bestIndex = index;
+		}
+		if (++index > MAX_ITEMS) break;
+		sprintf(tpath, "%s%d%s", "metadata.music[", index, "].score");
+	}
+	return bestIndex;
+}
+
+/**
+ * Gets the specific fields from the JSON Message and loads them into the acr_data_t variable
+ * @param jsonMsg: JSON message returned from the music content recognition service
+ * @param acrResponse: The structure in which the information is stored
+ * @return 0 if success or any other value if fails.
+ */
 int getAcrData(char * jsonMsg, acr_data_t * acrResponse)
 {
 	jsmn_parser parser;
-	jsmntok_t jsonTokens[MAX_NUM_OF_TOKENS];
+	jsmntok_t * jsmnTokenArray;
 
-	int tokenCount = parseJSON(jsonMsg, &parser, jsonTokens);
+	int tokenCount = parseJSON(jsonMsg, &parser, &jsmnTokenArray);
 	if (tokenCount < 0) return EXIT_FAILURE;
 
-	jsmntok_t * jsonToken = jsonTokens;
-	if (GET_TOKEN_LEN(jsonToken) < 0) return JSMN_ERROR_PART;
-	if (!memcmp("", &jsonMsg[jsonToken->start], (size_t)GET_TOKEN_LEN(jsonToken))) return JSMN_ERROR_PART;
+	jsmntok_t * jsonToken = jsmnTokenArray;
+	if (getJsmnTokenLen(jsonToken) < 0) return JSMN_ERROR_PART;
+	if (!memcmp("", &jsonMsg[jsonToken->start], (size_t)getJsmnTokenLen(jsonToken))) return JSMN_ERROR_PART;
 
-	setUpAcrResponseField("status.code", acrResponse->status.code, jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("status.msg", acrResponse->status.msg, jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("status.version", acrResponse->status.version, jsonMsg, jsonTokens, tokenCount);
+	// ain't necessary
+	//initAcrDataT(acrResponse);
+
+	setUpAcrResponseField("status.code", 0, acrResponse->status.code, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("status.msg", 0, acrResponse->status.msg, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("status.version", 0, acrResponse->status.version, jsonMsg, jsmnTokenArray);
 
 	if (acrResponse->status.code[0] != '0') return EXIT_FAILURE;
 
-	setUpAcrResponseField("metadata.music.album.name", acrResponse->metadata.music.album, jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("metadata.music.artists.name[0]", acrResponse->metadata.music.artists[0], jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("metadata.music.genres.name[0]", acrResponse->metadata.music.genres[0], jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("metadata.music.label", acrResponse->metadata.music.label, jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("metadata.music.release_date", acrResponse->metadata.music.release_date, jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("metadata.music.title", acrResponse->metadata.music.title, jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("metadata.music.external_metadata.spotify.album.id", acrResponse->metadata.music.external_metadata.spotify.album_id, jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("metadata.music.external_metadata.spotify.track.id", acrResponse->metadata.music.external_metadata.spotify.track_id, jsonMsg, jsonTokens, tokenCount);
-	setUpAcrResponseField("metadata.music.external_metadata.youtube.vid", acrResponse->metadata.music.external_metadata.youtube_vid, jsonMsg, jsonTokens, tokenCount);
+	int musicIndex = getIndexBestMusicScore(jsonMsg, jsmnTokenArray);
+
+	setUpAcrResponseField("metadata.music[0].album.name", musicIndex, acrResponse->metadata.music.album, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].artists[0].name", musicIndex, acrResponse->metadata.music.artists[0], jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].artists[1].name", musicIndex, acrResponse->metadata.music.artists[1], jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].artists[2].name", musicIndex, acrResponse->metadata.music.artists[2], jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].genres[0].name", musicIndex, acrResponse->metadata.music.genres[0], jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].genres[1].name", musicIndex, acrResponse->metadata.music.genres[1], jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].genres[2].name", musicIndex, acrResponse->metadata.music.genres[2], jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].label", musicIndex, acrResponse->metadata.music.label, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].release_date", musicIndex, acrResponse->metadata.music.release_date, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].title", musicIndex, acrResponse->metadata.music.title, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].external_metadata.spotify.album.id", musicIndex, acrResponse->metadata.music.external_metadata.spotify.album_id, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].external_metadata.spotify.track.id", musicIndex, acrResponse->metadata.music.external_metadata.spotify.track_id, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].external_metadata.youtube.vid", musicIndex, acrResponse->metadata.music.external_metadata.youtube_vid, jsonMsg, jsmnTokenArray);
 
 	return EXIT_SUCCESS;
 }

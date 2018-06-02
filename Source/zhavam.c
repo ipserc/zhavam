@@ -11,7 +11,6 @@
  */
 
 #include <gtk/gtk.h>
-
 #include <errno.h>
 #include <libconfig.h>
 #include <stdarg.h>
@@ -20,18 +19,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-
-#include "jsmn.h"
-#include "list.h"
-
 #include "zhavam.h"
+#include "zhavam_glade.h"
 #include "zhavam_acrcloud.h"
 #include "zhavam_alsa.h"
-#include "zhavam_config.h"
 #include "zhavam_devices.h"
 #include "zhavam_errtra.h"
-#include "zhavam_glade.h"
-#include "zhavam_jsonparser.h"
 
 /**
  * Status messages
@@ -50,7 +43,7 @@
 
 /**
  * Static "private method" to create or get the GtkBuilder * gtkbuilder "member" variable. DO NOT CALL IT DIRECTLY
- * @param int method
+ * @param method: Selector for (0) create a new instance or returning the one created
  * @return static GtkBuilder * gtkbuilder
  */
 static GtkBuilder * gtkbuilder(int method)
@@ -91,7 +84,7 @@ GtkBuilder * getGtkBuilder(void)
 
 /**
  * Static "private method" to create or get the zhavamConf_t * zhavamConf "member" variable. DO NOT CALL IT DIRECTLY
- * @param int method
+ * @param method: Selector for (0) create a new instance or returning the one created
  * @return static zhavamConf_t * zhavamConf
  */
 static zhavamConf_t * zhavamConf(int method)
@@ -126,8 +119,8 @@ zhavamConf_t * getZhavamConf()
 /**
  * Does all the magic. does Zhavam.
  * opens the device, Sets up Audio Device, PCM prepare, Start Record and recognize the song, Close the device and present the result
- * @param char * devID
- * @param acr_data_t * acrResponse
+ * @param devID; ID of the recording device
+ * @param acrResponse: The structure in which the information of the song is stored
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int doZhavam(char * devID, acr_data_t * acrResponse)
@@ -148,6 +141,7 @@ int doZhavam(char * devID, acr_data_t * acrResponse)
 		gtkSetCursor(NORMAL_CURSOR);
 		return EXIT_FAILURE;
 	}
+	gtkZhavamClearTrackInfoTextView(NULL, NULL);
 	gtkSetStatusZhvLabel(STATUS01);
 	gtkSetCursor(GDK_WATCH);
 	if (openDevice(devID, &capture_handle, &hw_params) < 0) return EXIT_FAILURE;
@@ -162,9 +156,9 @@ int doZhavam(char * devID, acr_data_t * acrResponse)
 
 /**
  * Converts the ACR response from the acr_data_t structure to a text to be shown in zhavam track info multiline text box,
- * @param char * trackInfoText
- * @param acr_data_t * acrResponse
- * @return char * trackInfoText
+ * @param trackInfoText: String with all the info of the track. This text is displayed in the info text view of the application
+ * @param acrResponse: The structure in which the information of the song is stored
+ * @return A pointer to trackInfoText
  */
 char * acrDataToText(char * trackInfoText, acr_data_t * acrResponse)
 {
@@ -178,17 +172,20 @@ char * acrDataToText(char * trackInfoText, acr_data_t * acrResponse)
 	}
 	else
 	{
-		//ptr += sprintf(ptr, "------- TRACK INFO %d -------\n", m+1);
 		ptr += sprintf(ptr, "Title:%s\n", acrResponse->metadata.music.title);
-		for(int i = 0; i < MAX_ITEMS; ++i) {
+		ptr += sprintf(ptr, "Artist:%s", acrResponse->metadata.music.artists[0]);
+		for(int i = 1; i < MAX_ITEMS; ++i) {
 			if (!acrResponse->metadata.music.artists[i][0]) break;
-			ptr += sprintf(ptr, "Artists[%d]:%s\n", i, acrResponse->metadata.music.artists[i]);
+			ptr += sprintf(ptr, ", %s", acrResponse->metadata.music.artists[i]);
 		}
+		ptr += sprintf(ptr, "\n");
 		ptr += sprintf(ptr, "Album:%s\n", acrResponse->metadata.music.album);
-		for(int i = 0; i < MAX_ITEMS; ++i) {
+		ptr += sprintf(ptr, "Genre:%s", acrResponse->metadata.music.genres[0]);
+		for(int i = 1; i < MAX_ITEMS; ++i) {
 			if (!acrResponse->metadata.music.genres[i][0]) break;
-			ptr += sprintf(ptr, "Genres[%d]:%s\n", i, acrResponse->metadata.music.genres[i]);
+			ptr += sprintf(ptr, ", %s", acrResponse->metadata.music.genres[i]);
 		}
+		ptr += sprintf(ptr, "\n");
 		ptr += sprintf(ptr, "Label:%s\n", acrResponse->metadata.music.label);
 		ptr += sprintf(ptr, "Release date:%s\n", acrResponse->metadata.music.release_date);
 		ptr += sprintf(ptr, "Spotify album id:%s\n", acrResponse->metadata.music.external_metadata.spotify.album_id);
@@ -210,7 +207,7 @@ char * acrDataToText(char * trackInfoText, acr_data_t * acrResponse)
 
 /**
  * Cleans up the track info text buffer
- * @param GtkTextBuffer * textbuf
+ * @param textbuf: The text buffer to clean
  */
 void gtkDeleteTextBuffer(GtkTextBuffer * textbuf)
 {
@@ -224,8 +221,8 @@ void gtkDeleteTextBuffer(GtkTextBuffer * textbuf)
 
 /**
  * Record ToggleButtonClicked Callback
- * @param GtkToggleButton * recordToggleButton
- * @param gpointer user_data
+ * @param recordToggleButton
+ * @param data
  */
 void gtkRecordToggleButtonClickedCallback(GtkToggleButton * recordToggleButton, gpointer user_data)
 {
@@ -243,8 +240,8 @@ void gtkRecordToggleButtonClickedCallback(GtkToggleButton * recordToggleButton, 
 }
 
 /**
- * Gets the DevID from devicesComboBoxText ans stores it in zhavamConf->alsa.pcm_dev
- * return char * zhavamConf-> alsa.pcm_dev
+ * Gets the DevID from devicesComboBoxText and stores it in zhavamConf->alsa.pcm_dev
+ * return zhavamConf-> alsa.pcm_dev
  */
 char * gtkGetDevID(void)
 {
@@ -256,8 +253,8 @@ char * gtkGetDevID(void)
 
 /**
  * Sets the default device in the devicesComboBoxText according with the value stored in ptZhavamConf->alsa.pcm_dev or the first value if NULL
- * @param GtkComboBoxText * devicesComboBoxText
- * @param zhavamConf_t * ptZhavamConf
+ * @param devicesComboBoxText
+ * @param ptZhavamConf
  */
 void gtkSetDefaultDevice(GtkComboBoxText * devicesComboBoxText, zhavamConf_t * ptZhavamConf)
 {
@@ -268,7 +265,7 @@ void gtkSetDefaultDevice(GtkComboBoxText * devicesComboBoxText, zhavamConf_t * p
 		do
 		{
 			gtk_combo_box_set_active((GtkComboBox *)devicesComboBoxText, index++);
-			comboText = gtk_combo_box_text_get_active_text((GtkComboBox *)devicesComboBoxText);
+			comboText = gtk_combo_box_text_get_active_text((GtkComboBoxText *)devicesComboBoxText);
 			if (comboText)
 			{
 				if (strstr(comboText, ptZhavamConf->alsa.pcm_dev)) break;
@@ -281,13 +278,13 @@ void gtkSetDefaultDevice(GtkComboBoxText * devicesComboBoxText, zhavamConf_t * p
 
 /**
  * Loads the Record Devices found into the devicesComboBoxText and shows the default device
- * @param list_t * pcmRecDevList
- * @param zhavamConf_t * ptZhavamConf
+ * @param pcmRecDevList
+ * @param ptZhavamConf
  * @return TRUE if there is a default dev, else FALSE
  */
 gboolean gtkLoadDevicesCombo(list_t * pcmRecDevList, zhavamConf_t * ptZhavamConf)
 {
-	char devComboTextLine[MAX_LEN_DEV_NAME] = "";
+	char devComboTextLine[2*MAX_LEN_DEV_NAME+4] = "";
 
 	GtkComboBoxText * devicesComboBoxText = (GtkComboBoxText*)GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "devicesComboBoxText"));
 	gtk_combo_box_text_remove_all(devicesComboBoxText);
@@ -307,7 +304,7 @@ gboolean gtkLoadDevicesCombo(list_t * pcmRecDevList, zhavamConf_t * ptZhavamConf
 
 /**
  * Sets Sensitive RecordToggleButton status
- * @param gboolean sensitive
+ * @param sensitive: true to set the button in sensitive mode, false set normal.
  */
 void gtkSetSensitiveRecordToggleButton(gboolean sensitive)
 {
@@ -317,7 +314,7 @@ void gtkSetSensitiveRecordToggleButton(gboolean sensitive)
 
 /**
  * Sets StatusZhvLabel with the text passed
- * @param const char * text
+ * @param text: The text to set in the Status Label
  */
 void gtkSetStatusZhvLabel(const char * text)
 {
@@ -328,12 +325,11 @@ void gtkSetStatusZhvLabel(const char * text)
 
 /**
  * Opens the warning dialog with the message passed as parameter
- * @param const char * fmtstr
- * @param ...
+ * @param fmtstr: Format string as in printf
+ * @param ...: Rest of parameters
  */
 void gtkWarning(const char * fmtstr,...)
 {
-	char fullWarningMsg[WARNINGMSGLEN];
 	char WarningMsg[WARNINGMSGLEN];
 	va_list arglist;
 
@@ -350,6 +346,7 @@ void gtkWarning(const char * fmtstr,...)
 /**
  * Sets the cursor with one of the types defined in http://developer.gimp.org/api/2.0/gdk/gdk-Cursors.html
  * Typically normal cursor or hour glass
+ * @param cursorType: the type of cursor as in http://developer.gimp.org/api/2.0/gdk/gdk-Cursors.html
  */
 void gtkSetCursor(GdkCursorType cursorType)
 {
@@ -363,7 +360,7 @@ void gtkSetCursor(GdkCursorType cursorType)
 
 /**
  * Looks whether the ACR Cloud access data is set
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  * @return true if all the required data are set, or false in other case
  */
 bool acrCloudSet(zhavamConf_t * ptZhavamConf)
@@ -382,7 +379,7 @@ bool acrCloudSet(zhavamConf_t * ptZhavamConf)
 
 /**
  * Required tasks for zhavam initialization
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkInitZhavam(zhavamConf_t * ptZhavamConf)
 {
@@ -396,8 +393,8 @@ void gtkInitZhavam(zhavamConf_t * ptZhavamConf)
 	gtkSetStatusZhvLabel(statusActivateMsg);
 
 	list_t * pcmRecDevList;
-	pcmRecDevList = listNew(pcmRecDevList);
-	getPCMRecDevices(pcmRecDevList);
+	listNew(&pcmRecDevList);
+	pcmRecDevList = getPCMRecDevices(pcmRecDevList);
 	// Load the capture sound devices in the devices combobox
 	if (!gtkLoadDevicesCombo(pcmRecDevList, ptZhavamConf))
 	{
@@ -410,7 +407,7 @@ void gtkInitZhavam(zhavamConf_t * ptZhavamConf)
 
 	gtkConfigDialogSetUp(ptZhavamConf, pcmRecDevList);
 
-	listDestroy(pcmRecDevList);
+	listDestroy(pcmRecDevList, (void *)NULL);
 }
 
 /**
@@ -424,8 +421,8 @@ void gtkCloseZhavam(void)
 
 /**
  * Zhavam Config Quit menu callback
- * @param GtkImageMenuItem * menuConfigQuit
- * @param  gpointer user_data
+ * @param menuConfigQuit
+ * @param user_data
  */
 void gtkZhavamConfigQuit(GtkImageMenuItem * menuConfigQuit, gpointer user_data)
 {
@@ -434,8 +431,8 @@ void gtkZhavamConfigQuit(GtkImageMenuItem * menuConfigQuit, gpointer user_data)
 
 /**
  * Zhavam Copy To Clipboard menu callback
- * @param GtkImageMenuItem * menuConfigCopy
- * @param gpointer user_data
+ * @param menuConfigCopy
+ * @param user_data
  */
 void gtkZhavamCopyToClipboard(GtkImageMenuItem * menuConfigCopy, gpointer user_data)
 {
@@ -454,8 +451,8 @@ void gtkZhavamCopyToClipboard(GtkImageMenuItem * menuConfigCopy, gpointer user_d
 
 /**
  * Zhavam Clear TrackInfo TextView menu callback
- * @param GtkImageMenuItem * menuInfoClearText
- * @param gpointer user_data
+ * @param menuInfoClearText
+ * @param user_data
  */
 void gtkZhavamClearTrackInfoTextView(GtkImageMenuItem * menuInfoClearText, gpointer user_data)
 {
@@ -465,8 +462,8 @@ void gtkZhavamClearTrackInfoTextView(GtkImageMenuItem * menuInfoClearText, gpoin
 
 /**
  * Zhavam About menu callback to opens the about dialog
- * @param GtkImageMenuItem * menuHelpAbout
- * @param gpointer user_data
+ * @param menuHelpAbout
+ * @param user_data
  */
 void gtkZhavamAbout(GtkImageMenuItem * menuHelpAbout, gpointer user_data)
 {
@@ -476,8 +473,8 @@ void gtkZhavamAbout(GtkImageMenuItem * menuHelpAbout, gpointer user_data)
 
 /**
  * DialogWarningClose callback
- * @param GtkImageMenuItem * buttonDialogWarning
- * @param gpointer user_data
+ * @param buttonDialogWarning
+ * @param user_data
  */
 void gtkDialogWarningClose(GtkImageMenuItem * buttonDialogWarning, gpointer user_data)
 {
@@ -534,8 +531,8 @@ void gtkSignalsConnect(void)
  * Creates the file zhavam.conf from scratch
  * first set up the default values for acrcloud and alsa
  * second writes these values in a new zhavam.conf file
- * @param char * zhvHome
- * @param zhavamConf_t * ptZhavamConf
+ * @param zhvHome
+ * @param ptZhavamConf
  */
 void createZhavamConf(char * zhvHome, zhavamConf_t * ptZhavamConf)
 {
@@ -547,8 +544,8 @@ void createZhavamConf(char * zhvHome, zhavamConf_t * ptZhavamConf)
 
 /**
  * Loads the configuration from zhavam.conf
- * @param char * zhvHome
- * @param zhavamConf_t * ptZhavamConf
+ * @param zhvHome
+ * @param ptZhavamConf
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int configLoad(char * zhvHome, zhavamConf_t * ptZhavamConf)
@@ -567,7 +564,7 @@ int configLoad(char * zhvHome, zhavamConf_t * ptZhavamConf)
 		return EXIT_FAILURE;
 	}
 
-	char * str;
+	const char * str;
 	config_lookup_string(&cfg, "acrcloud.access_key", &(ptZhavamConf->acrcloud.access_key_));
 	config_lookup_string(&cfg, "acrcloud.access_secret", &(ptZhavamConf->acrcloud.access_secret_));
 	config_lookup_string(&cfg, "acrcloud.host", &(ptZhavamConf->acrcloud.host_));
@@ -575,7 +572,7 @@ int configLoad(char * zhvHome, zhavamConf_t * ptZhavamConf)
 	ptZhavamConf->acrcloud.rec_type_ = recTypeDecode(str);
 	config_lookup_int(&cfg, "acrcloud.timeout_ms", &(ptZhavamConf->acrcloud.timeout_ms_));
 
-	config_lookup_string(&cfg, "alsa.snd_pcm_format", &(str));
+	config_lookup_string(&cfg, "alsa.snd_pcm_format", &str);
 	ptZhavamConf->alsa.snd_pcm_format = sndPcmFormatDecode(str);
 	config_lookup_string(&cfg, "alsa.pcm_dev", &(ptZhavamConf->alsa.pcm_dev));
 	config_lookup_int(&cfg, "alsa.pcm_buffer_frames", &(ptZhavamConf->alsa.pcm_buffer_frames));
@@ -586,7 +583,7 @@ int configLoad(char * zhvHome, zhavamConf_t * ptZhavamConf)
 
 /**
  * Initializes Zhavam ConfigStruct
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void initZhavamConfigStruct(zhavamConf_t * ptZhavamConf)
 {
@@ -604,7 +601,7 @@ void initZhavamConfigStruct(zhavamConf_t * ptZhavamConf)
 
 /**
  * Sets up Zhavam ConfigStruct to the default values
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void setupZhavamConfigStruct(zhavamConf_t * ptZhavamConf)
 {
@@ -622,8 +619,8 @@ void setupZhavamConfigStruct(zhavamConf_t * ptZhavamConf)
 
 /**
  * Writes Zhavam Configuration kept in ptZhavamConf to zhavam.conf
- * @param char * zhavamHome
- * @param zhavamConf_t * ptZhavamConf
+ * @param zhavamHome
+ * @param ptZhavamConf
  */
 void writeZhavamConfig(char * zhavamHome, zhavamConf_t * ptZhavamConf)
 {
@@ -670,6 +667,7 @@ void writeZhavamConfig(char * zhavamHome, zhavamConf_t * ptZhavamConf)
  * Try to read the config file zhavam.conf
  * If this file doesn't exist calls createZhavamConf with the full path to create the file
  * If the file exists loads its content
+ * @param ptZhavamConf
  * @parm zhavamConf_t * ptZhavamConf
  */
 void zhavamConfig(zhavamConf_t * ptZhavamConf)
@@ -703,8 +701,8 @@ void zhavamConfig(zhavamConf_t * ptZhavamConf)
 
 /**
  * main function
- * @param int argc
- * @param char * argv[]
+ * @param argc
+ * @param argv[]
  */
 int main(int argc, char * argv[])
 {
@@ -722,14 +720,14 @@ int main(int argc, char * argv[])
 		acr_data_t acrResponse;
 		int retVal;
 		retVal = doZhavam(ptZhavamConf->alsa.pcm_dev, &acrResponse);
-		printAcrData(&acrResponse);
+		//printAcrData(&acrResponse);
 		return retVal;
 	}
 	// else Graphic User Interface GUI
 	zhavamConfig(ptZhavamConf);
-	char statusActivateMsg[TEXTZHAVAMDO];
+	//char statusActivateMsg[TEXTZHAVAMDO];
 	GtkWidget * zhavamMainWindow;
-	GError * error = NULL;
+	//GError * error = NULL;
 
 	gtk_init(&argc, &argv);
 

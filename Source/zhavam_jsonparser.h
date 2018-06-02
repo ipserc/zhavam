@@ -8,22 +8,25 @@
 #ifndef SOURCE_ZHAVAM_JSONPARSER_H_
 #define SOURCE_ZHAVAM_JSONPARSER_H_
 
-#include <stddef.h>
+#define JSMN_PARENT_LINKS
 
-#include "jsmn.h"
+#include <stddef.h>
+#include "jsmnRipper.h"
+
 #include "zhavam_acrcloud.h"
 
-#define MAX_NUM_OF_TOKENS 1000 // a number >= total number of tokens
-#define VALUE_MAX_LEN 128 // Maximum length of the value field
-#define MAX_ITEMS 10	// Maximum number of item in a list
+//#define MAX_NUM_OF_TOKENS 1000 // a number >= total number of tokens
+#define VALUE_MAX_LEN 200 // Maximum length of the value field
+#define MAX_ITEMS 3	// Maximum number of item in a list
 
-
+/*
 typedef struct
 {
 	char * name;
 	jsmntype_t jtype;
-	int index;
-} token_t;
+	int index; //If array the index of the item
+} item_t;
+*/
 
 /**
  * status definition section
@@ -39,7 +42,7 @@ typedef struct
 typedef struct
 {
 	char album_id[VALUE_MAX_LEN];
-	char artist_id[MAX_ITEMS][VALUE_MAX_LEN];
+	char artist_id[VALUE_MAX_LEN];
 	char track_id[VALUE_MAX_LEN];
 } spotify_t;
 
@@ -89,23 +92,14 @@ typedef struct
 	char result_type[VALUE_MAX_LEN];
 } acr_data_t;
 
-
 /*
  * Prototypes
  */
-int listToken(list_t *tokenList, char *tpath);
-void printTok(void *param);
-void freeTokenList(list_t *tokenList);
-int parseJSON(char *jsonMsg, jsmn_parser *parser, jsmntok_t *jsonTokens);
-void nextToken(jsmntok_t **jsonToken, int *jsonTokNbr);
-void prevToken(jsmntok_t **jsonToken, int *jsonTokNbr);
-jsmntok_t *findJsonToken(char *jsonMsg, list_t *tokenList, jsmntok_t *jsonTokens, int *jsonTokNbr, int tokenCount);
-void printJsonTokens(char *jsonMsg, jsmntok_t *jsonTokens, int tokenCount);
-void printJsonToken(char *jsonMsg, jsmntok_t *jsonToken);
-void printJsonTokenValue(char *jsonMsg, jsmntok_t *jsonToken);
-char *getTokenValue(char *tpath, char *jsonMsg, jsmntok_t *jsonTokens, int tokenCount);
-char *setUpAcrResponseField(char *tpath, char *acrResponseField, char *jsonMsg, jsmntok_t *jsonTokens, int tokenCount);
+/* zhavam_jsonparser.c */
+void initAcrDataT(acr_data_t * acrResponse);
+char *substMusicIndex(char *string, char fcar, char tcar);
+char *setUpAcrResponseField(char *tpath, int musicIndex, char *acrResponseField, char *jsonMsg, jsmntok_t *jsmnTokenArray);
+int getIndexBestMusicScore(char *jsonMsg, jsmntok_t *jsonTokenArray);
 int getAcrData(char *jsonMsg, acr_data_t *acrResponse);
-
 
 #endif /* SOURCE_ZHAVAM_JSONPARSER_H_ */

@@ -9,83 +9,75 @@
 
 #include <stdio.h>
 
-#include "jsmn.h"
-#include "list.h"
 #include "zhavam.h"
-#include "zhavam_acrcloud.h"
-#include "zhavam_alsa.h"
 #include "zhavam_config.h"
-#include "zhavam_devices.h"
-#include "zhavam_errtra.h"
-#include "zhavam_jsonparser.h"
-#include "acrcloud_recognizer.h"
 
 /**
  * Sets AcrCloudHostEntry field with ptZhavamConf->acrcloud.host_
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkSetAcrCloudHostEntry(zhavamConf_t * ptZhavamConf)
 {
 	GtkWidget * acrCloudHostEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudHostEntry"));
-	if (ptZhavamConf->acrcloud.host_) gtk_entry_set_text(acrCloudHostEntry, ptZhavamConf->acrcloud.host_);
-	else gtk_entry_set_text(acrCloudHostEntry, "");
+	if (ptZhavamConf->acrcloud.host_) gtk_entry_set_text((GtkEntry *)acrCloudHostEntry, ptZhavamConf->acrcloud.host_);
+	else gtk_entry_set_text((GtkEntry *)acrCloudHostEntry, "");
 }
 
 /**
  * Gets AcrCloudHostEntry field
  * @return AcrCloudHostEntry value
  */
-char * gtkGetAcrCloudHostEntry(void)
+const char * gtkGetAcrCloudHostEntry(void)
 {
 	GtkWidget * acrCloudHostEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudHostEntry"));
-	return gtk_entry_get_text(acrCloudHostEntry);
+	return gtk_entry_get_text((GtkEntry *)acrCloudHostEntry);
 }
 
 /**
  * Sets AcrCloudAccessKeyEntry field with ptZhavamConf->acrcloud.access_key_
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkSetAcrCloudAccessKeyEntry(zhavamConf_t * ptZhavamConf)
 {
 	GtkWidget * acrCloudAccessKeyEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudAccessKeyEntry"));
-	if (ptZhavamConf->acrcloud.access_key_) gtk_entry_set_text(acrCloudAccessKeyEntry, ptZhavamConf->acrcloud.access_key_);
-	else gtk_entry_set_text(acrCloudAccessKeyEntry, "");
+	if (ptZhavamConf->acrcloud.access_key_) gtk_entry_set_text((GtkEntry* )acrCloudAccessKeyEntry, ptZhavamConf->acrcloud.access_key_);
+	else gtk_entry_set_text((GtkEntry* )acrCloudAccessKeyEntry, "");
 }
 
 /**
  * Gets AcrCloudAccessKeyEntry field
  * @return AcrCloudAccessKeyEntry value
  */
-char * gtkGetAcrCloudAccessKeyEntry(void)
+const char * gtkGetAcrCloudAccessKeyEntry(void)
 {
 	GtkWidget * acrCloudAccessKeyEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudAccessKeyEntry"));
-	return gtk_entry_get_text(acrCloudAccessKeyEntry);
+	return gtk_entry_get_text((GtkEntry* )acrCloudAccessKeyEntry);
 }
 
 /**
  * Sets AcrCloudAccessSecretEntry field with ptZhavamConf->acrcloud.access_secret_
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkSetAcrCloudAccessSecretEntry(zhavamConf_t * ptZhavamConf)
 {
 	GtkWidget * acrCloudAccessSecretEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudAccessSecretEntry"));
-	if (ptZhavamConf->acrcloud.access_secret_) gtk_entry_set_text(acrCloudAccessSecretEntry, ptZhavamConf->acrcloud.access_secret_);
-	else gtk_entry_set_text(acrCloudAccessSecretEntry, "");
+	if (ptZhavamConf->acrcloud.access_secret_) gtk_entry_set_text((GtkEntry* )acrCloudAccessSecretEntry, ptZhavamConf->acrcloud.access_secret_);
+	else gtk_entry_set_text((GtkEntry* )acrCloudAccessSecretEntry, "");
 }
 
 /**
  * Gets AcrCloudAccessSecretEntry field
  * @return AcrCloudAccessSecretEntry value
  */
-char * gtkGetAcrCloudAccessSecretEntry(void)
+const char * gtkGetAcrCloudAccessSecretEntry(void)
 {
 	GtkWidget * acrCloudAccessSecretEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudAccessSecretEntry"));
-	return gtk_entry_get_text(acrCloudAccessSecretEntry);
+	return gtk_entry_get_text((GtkEntry* )acrCloudAccessSecretEntry);
 }
 
 /**
  * Sets AcrCloudTimeOutSpinButton value with ptZhavamConf->acrcloud.timeout_ms_
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkSetAcrCloudTimeOutSpinButton(zhavamConf_t * ptZhavamConf)
 {
@@ -100,12 +92,12 @@ void gtkSetAcrCloudTimeOutSpinButton(zhavamConf_t * ptZhavamConf)
 int gtkGetAcrCloudTimeOutSpinButton(void)
 {
 	GtkWidget * acrCloudTimeOutSpinButton = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudTimeOutSpinButton"));
-	return gtk_spin_button_get_value_as_int(acrCloudTimeOutSpinButton);
+	return gtk_spin_button_get_value_as_int((GtkSpinButton *)acrCloudTimeOutSpinButton);
 }
 
 /**
  * Sets AcrCloudRecTypeComboBoxText field with ptZhavamConf->acrcloud.rec_type_
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkSetAcrCloudRecTypeComboBoxText(zhavamConf_t * ptZhavamConf)
 {
@@ -126,12 +118,12 @@ void gtkSetAcrCloudRecTypeComboBoxText(zhavamConf_t * ptZhavamConf)
 char * gtkGetAcrCloudRecTypeComboBoxText(void)
 {
 	GtkWidget * acrCloudRecTypeComboBoxText = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "acrCloudRecTypeComboBoxText"));
-	return gtk_combo_box_text_get_active_text((GtkComboBox *)acrCloudRecTypeComboBoxText);
+	return gtk_combo_box_text_get_active_text((GtkComboBoxText *)acrCloudRecTypeComboBoxText);
 }
 
 /**
  * Sets AlsaSndPcmFormatComboBoxText field with ptZhavamConf->alsa.snd_pcm_format
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkSetAlsaSndPcmFormatComboBoxText(zhavamConf_t * ptZhavamConf)
 {
@@ -152,12 +144,12 @@ void gtkSetAlsaSndPcmFormatComboBoxText(zhavamConf_t * ptZhavamConf)
 char * gtkGetAlsaSndPcmFormatComboBoxText(void)
 {
 	GtkWidget * alsaSndPcmFormatComboBoxText = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "alsaSndPcmFormatComboBoxText"));
-	return gtk_combo_box_text_get_active_text((GtkComboBox *)alsaSndPcmFormatComboBoxText);
+	return gtk_combo_box_text_get_active_text((GtkComboBoxText *)alsaSndPcmFormatComboBoxText);
 }
 
 /**
  * Sets AlsaRateSpinButton value with ptZhavamConf->alsa.rate
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkSetAlsaRateSpinButton(zhavamConf_t * ptZhavamConf)
 {
@@ -177,7 +169,7 @@ int gtkGetAlsaRateSpinButton(void)
 
 /**
  * Sets AlsaPcmBufferFramesSpinButton value with ptZhavamConf->alsa.pcm_buffer_frames
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkSetAlsaPcmBufferFramesSpinButton(zhavamConf_t * ptZhavamConf)
 {
@@ -197,23 +189,21 @@ int gtkGetAlsaPcmBufferFramesSpinButton(void)
 
 /**
  * Sets AlsaPcmDeviceComboBoxText value with ptZhavamConf->alsa.pcm_dev
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void gtkSetAlsaPcmDeviceComboBoxText(list_t * pcmRecDevList, zhavamConf_t * ptZhavamConf)
 {
-	char devComboTextLine[MAX_LEN_DEV_NAME] = "";
-
 	GtkWidget * alsaPcmDeviceComboBoxText = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "alsaPcmDeviceComboBoxText"));
 
-	gtk_combo_box_text_remove_all((GtkComboBoxText*)alsaPcmDeviceComboBoxText);
+	gtk_combo_box_text_remove_all((GtkComboBoxText *)alsaPcmDeviceComboBoxText);
 
 	if (pcmRecDevList->head == NULL) return; // Empty list
 
-	gtk_combo_box_text_append_text((GtkComboBoxText*)alsaPcmDeviceComboBoxText, "");
+	gtk_combo_box_text_append_text((GtkComboBoxText *)alsaPcmDeviceComboBoxText, "");
 	for(node_t * ptr = pcmRecDevList->head;ptr;ptr = ptr->next)
-		gtk_combo_box_text_append_text((GtkComboBoxText*)alsaPcmDeviceComboBoxText, ((pcmDev_t*)(ptr->item))->devName);
+		gtk_combo_box_text_append_text((GtkComboBoxText *)alsaPcmDeviceComboBoxText, ((pcmDev_t*)(ptr->item))->devName);
 
-	gtkSetDefaultDevice(alsaPcmDeviceComboBoxText, ptZhavamConf);
+	gtkSetDefaultDevice((GtkComboBoxText *)alsaPcmDeviceComboBoxText, ptZhavamConf);
 }
 
 /**
@@ -223,13 +213,13 @@ void gtkSetAlsaPcmDeviceComboBoxText(list_t * pcmRecDevList, zhavamConf_t * ptZh
 char * gtkGetAlsaPcmDeviceComboBoxText(void)
 {
 	GtkWidget * alsaPcmDeviceComboBoxText = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "alsaPcmDeviceComboBoxText"));
-	return gtk_combo_box_text_get_active_text((GtkComboBox *)alsaPcmDeviceComboBoxText);
+	return gtk_combo_box_text_get_active_text((GtkComboBoxText *)alsaPcmDeviceComboBoxText);
 }
 
 /**
  * Opens (shows) the configDialog of zhavam
- * @param GtkImageMenuItem * menuConfigEdit
- * @param gpointer user_data
+ * @param menuConfigEdit
+ * @param user_data
  */
 void gtkZhavamConfigEdit(GtkImageMenuItem * menuConfigEdit, gpointer user_data)
 {
@@ -241,8 +231,8 @@ void gtkZhavamConfigEdit(GtkImageMenuItem * menuConfigEdit, gpointer user_data)
 /**
  * ConfigCloseButton callback
  * Calls configUpdate
- * @param GtkButton * configCloseButton
- * @param gpointer user_data
+ * @param configCloseButton
+ * @param user_data
  */
 void gtkConfigCloseButton(GtkButton * configCloseButton, gpointer user_data)
 {
@@ -253,22 +243,22 @@ void gtkConfigCloseButton(GtkButton * configCloseButton, gpointer user_data)
 
 /**
  * Updates ptZhavamConf with the values taken from configDialog
- * @param zhavamConf_t * ptZhavamConf
+ * @param ptZhavamConf
  */
 void configUpdate(zhavamConf_t * ptZhavamConf)
 {
 	/*
 	 * acrcloud
 	 */
-	if (ptZhavamConf->acrcloud.access_key_) free(ptZhavamConf->acrcloud.access_key_);
+	if (ptZhavamConf->acrcloud.access_key_) free((void *)ptZhavamConf->acrcloud.access_key_);
 	ptZhavamConf->acrcloud.access_key_ = malloc(strlen(gtkGetAcrCloudAccessKeyEntry())+1);
 	sprintf(ptZhavamConf->acrcloud.access_key_, "%s", gtkGetAcrCloudAccessKeyEntry());
 
-	if (ptZhavamConf->acrcloud.access_secret_) free(ptZhavamConf->acrcloud.access_secret_);
+	if (ptZhavamConf->acrcloud.access_secret_) free((void *)ptZhavamConf->acrcloud.access_secret_);
 	ptZhavamConf->acrcloud.access_secret_ = malloc(strlen(gtkGetAcrCloudAccessSecretEntry())+1);
 	sprintf(ptZhavamConf->acrcloud.access_secret_, "%s", gtkGetAcrCloudAccessSecretEntry());
 
-	if (ptZhavamConf->acrcloud.host_) free(ptZhavamConf->acrcloud.host_);
+	if (ptZhavamConf->acrcloud.host_) free((void *)ptZhavamConf->acrcloud.host_);
 	ptZhavamConf->acrcloud.host_ = malloc(strlen(gtkGetAcrCloudHostEntry())+1);
 	sprintf(ptZhavamConf->acrcloud.host_, "%s", gtkGetAcrCloudHostEntry());
 
@@ -283,7 +273,7 @@ void configUpdate(zhavamConf_t * ptZhavamConf)
 
 	ptZhavamConf->alsa.rate = gtkGetAlsaRateSpinButton();
 
-	if (ptZhavamConf->alsa.pcm_dev) free(ptZhavamConf->alsa.pcm_dev);
+	if (ptZhavamConf->alsa.pcm_dev) free((void *)ptZhavamConf->alsa.pcm_dev);
 	ptZhavamConf->alsa.pcm_dev = malloc(strlen(gtkGetAlsaPcmDeviceComboBoxText())+1);
 	sprintf(ptZhavamConf->alsa.pcm_dev, "%s", gtkGetAlsaPcmDeviceComboBoxText());
 
@@ -294,8 +284,8 @@ void configUpdate(zhavamConf_t * ptZhavamConf)
 /**
  * ConfigSaveButton callback
  * Calls configUpdate(ptZhavamConf) and writeZhavamConfig(zhvHome, ptZhavamConf)
- * @param GtkButton * configCloseButton
- * @param gpointer user_data
+ * @param configCloseButton
+ * @param user_data
  */
 void gtkConfigSaveButton(GtkButton * configCloseButton, gpointer user_data)
 {
@@ -312,15 +302,15 @@ void gtkConfigSaveButton(GtkButton * configCloseButton, gpointer user_data)
 /**
  * ConfigCleanButton callback
  * Cleans the configDialog and sets it to its default values
- * @param GtkButton * configCloseButton
- * @param gpointer user_data
+ * @param configCloseButton
+ * @param user_data
  */
 void gtkConfigCleanButton(GtkButton * configCloseButton, gpointer user_data)
 {
 	zhavamConf_t * ptZhavamConf = (zhavamConf_t *)getZhavamConf(); //(zhavamConf_t *)user_data;
 	setupZhavamConfigStruct(ptZhavamConf);
 	list_t * pcmRecDevList;
-	pcmRecDevList = listNew(pcmRecDevList);
+	listNew(&pcmRecDevList);
 	pcmRecDevList = getPCMRecDevices(pcmRecDevList);
 
 	gtkConfigDialogSetUp(ptZhavamConf, NULL);
@@ -328,8 +318,8 @@ void gtkConfigCleanButton(GtkButton * configCloseButton, gpointer user_data)
 
 /**
  * Sets up the configDialog widgets with the values stored in ptZhavamConf
- * @param zhavamConf_t * ptZhavamConf
- * @param list_t * pcmRecDevList
+ * @param ptZhavamConf
+ * @param pcmRecDevList
  */
 void gtkConfigDialogSetUp(zhavamConf_t * ptZhavamConf, list_t * pcmRecDevList)
 {
@@ -348,8 +338,8 @@ void gtkConfigDialogSetUp(zhavamConf_t * ptZhavamConf, list_t * pcmRecDevList)
 /**
  * menuConfigReload callback
  * Reloads the configuration kept in zhavam.conf config file and stores it in ptZhavamConf
- * @param GtkImageMenuItem * menuConfigReload
- * @param gpointer user_data
+ * @param menuConfigReload
+ * @param user_data
  */
 void gtkZhavamConfigReload(GtkImageMenuItem * menuConfigReload, gpointer user_data)
 {
@@ -364,8 +354,8 @@ void gtkZhavamConfigReload(GtkImageMenuItem * menuConfigReload, gpointer user_da
 /**
  * menuConfigSave callback
  * Saves the configuration set in configDialog from ptZhavamConf into zhavam.conf config file
- * @param GtkImageMenuItem * menuConfigSave
- * @param gpointer user_data
+ * @param menuConfigSave
+ * @param user_data
  */
 void gtkZhavamConfigSave(GtkImageMenuItem * menuConfigSave, gpointer user_data)
 {
@@ -376,4 +366,3 @@ void gtkZhavamConfigSave(GtkImageMenuItem * menuConfigSave, gpointer user_data)
 	sprintf(zhvHome, "%s/%s/%s", getenv("HOME"), ZHVDIR, ZHVFILENAME);
 	writeZhavamConfig(zhvHome, ptZhavamConf);
 }
-
