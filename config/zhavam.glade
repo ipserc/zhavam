@@ -26,6 +26,10 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
     <property name="visible">True</property>
     <property name="can_focus">False</property>
   </object>
+  <object class="GtkMenu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+  </object>
   <object class="GtkAdjustment" id="acrCloudTimeOutAdjustment">
     <property name="upper">50000</property>
     <property name="step_increment">1</property>
@@ -43,35 +47,17 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
     <property name="page_increment">100</property>
   </object>
   <object class="GtkTextBuffer" id="historyTextBuffer">
-    <property name="text" translatable="yes">Zhavam was born because of I was looking for a Shazam-like
-application for Linux, but after several tries in internert I couldn't find 
-something that gives me the basic functionality, this is, sound recognition.
+    <property name="text" translatable="yes">Zhavam was born because of I was looking for a Shazam-like application for Linux, but after several tries in internert I couldn't find something that gives me the basic functionality, this is, sound recognition.
 
-After looking for something related with music recognition in the web 
-I found ACRCloud.
+After looking for something related with music recognition in the web I found ACRCloud.
 
-ACRCloud gives you the services required for accessing their database
-and ask it about a piece of a song. If you are lucky, the ACRCloud service 
-recognizes your song piece from the millions kept in the database, and it 
-reply to your request by giving you some data about of the song you sent.
+ACRCloud gives you the services required for accessing their database and ask it about a piece of a song. If you are lucky, the ACRCloud service recognizes your song piece from the millions kept in the database, and it reply to your request by giving you some data about of the song you sent.
 
-Zhavam connects with Alsa to record a small piece of the song, and then 
-sends it to ACRCloud. ACRCloud responds with a Json message with the 
-information about the Title of the song, the artist, the album, the genre
-the year, etc. zhavam parses this message putting the most relevant 
-information in the Track Info text view.
+Zhavam connects with Alsa or Pulse Drivers to record a small piece of the song, and then sends it to ACRCloud. ACRCloud responds with a Json message with the information about the Title of the song, the artist, the album, the genre the year, etc. zhavam parses this message putting the most relevant information in the Track Info text view.
 
-For using zhavam in your computer you have to have an account in ACRCloud. 
-Registering in ACRCloud brings you the host to access through the 
-access key and access secret required to start a session with teh server.
+For using zhavam in your computer you have to have an account in ACRCloud. Registering in ACRCloud brings you the host to access through the access key and access secret required to start a session with teh server.
 
-Before using zhavam, please register yourself in ACRCloud and put the host, 
-access key and access secret into the config file of zhavam.</property>
-  </object>
-  <object class="GtkTextView" id="historyTextView">
-    <property name="visible">True</property>
-    <property name="can_focus">True</property>
-    <property name="buffer">historyTextBuffer</property>
+Before using zhavam, please register yourself in ACRCloud and put the host, access key and access secret into the config file of zhavam.</property>
   </object>
   <object class="GtkTextBuffer" id="trackInfoTextBuffer"/>
   <object class="GtkImage" id="zhavamImage">
@@ -302,6 +288,8 @@ access key and access secret into the config file of zhavam.</property>
             <property name="homogeneous">True</property>
             <child>
               <object class="GtkToggleButton" id="recordToggleButton">
+                <property name="width_request">-1</property>
+                <property name="height_request">-1</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -438,26 +426,26 @@ access key and access secret into the config file of zhavam.</property>
   </object>
   <object class="GtkAboutDialog" id="aboutZhavam">
     <property name="can_focus">False</property>
+    <property name="title" translatable="yes">About Zhavam</property>
     <property name="modal">True</property>
-    <property name="window_position">center</property>
+    <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <property name="transient_for">zhavamMainWindow</property>
     <property name="attached_to">menuHelpAbout</property>
     <property name="program_name">Zhavam (powered by Gtk+ 3.22.1)</property>
-    <property name="version">1.2</property>
-    <property name="comments" translatable="yes">Zhavam helps you to identify the music or song that is beign reproduced from or outside of your computer. You can also try singing or whistle the song you are looking for, but  you need have got a micro connected to it.</property>
+    <property name="version">1.3</property>
+    <property name="comments" translatable="yes">Zhavam helps you to identify the music or song that is being reproduced from or outside of your computer. You can also try singing or whistle the song you are looking for, but  you need have got a micro connected to it.</property>
     <property name="website">https://github.com/ipserc/zhavam</property>
     <property name="website_label" translatable="yes">Zhavam</property>
     <property name="license" translatable="yes">Este programa viene SIN NINGUNA GARANTÍA.
 Consulte la &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;Licencia Pública General de GNU, versión 3 o posterior&lt;/a&gt; para obtener más detalles.</property>
-    <property name="authors">ipserc (aka Jose Luis)</property>
+    <property name="authors">José Luis Núñez Crespi (aka ipserc)</property>
     <property name="logo">Zhavam.01.svg</property>
     <property name="wrap_license">True</property>
     <property name="license_type">gpl-3-0</property>
     <signal name="close" handler="gtk_widget_hide" swapped="no"/>
     <signal name="delete-event" handler="gtk_widget_hide" swapped="no"/>
-    <signal name="destroy" handler="gtk_widget_hide" swapped="no"/>
     <child>
       <placeholder/>
     </child>
@@ -466,15 +454,12 @@ Consulte la &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;Licencia P
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox">
+          <object class="GtkButtonBox" id="aboutButtonBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="halign">end</property>
             <property name="layout_style">start</property>
-            <child>
-              <placeholder/>
-            </child>
             <child>
               <placeholder/>
             </child>
@@ -489,8 +474,72 @@ Consulte la &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;Licencia P
             <property name="position">0</property>
           </packing>
         </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkDialog" id="historyDialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Zhavam history</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">320</property>
+    <property name="default_height">260</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">aboutZhavam</property>
+    <property name="attached_to">aboutZhavam</property>
+    <signal name="close" handler="gtk_widget_hide" swapped="no"/>
+    <signal name="delete-event" handler="gtk_widget_hide" swapped="no"/>
+    <child>
+      <placeholder/>
+    </child>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="margin_left">3</property>
+            <property name="margin_right">3</property>
+            <property name="margin_top">3</property>
+            <property name="margin_bottom">3</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
         <child>
-          <placeholder/>
+          <object class="GtkTextView" id="historyTextView">
+            <property name="width_request">495</property>
+            <property name="height_request">417</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="halign">baseline</property>
+            <property name="valign">baseline</property>
+            <property name="border_width">3</property>
+            <property name="hscroll_policy">natural</property>
+            <property name="vscroll_policy">natural</property>
+            <property name="editable">False</property>
+            <property name="wrap_mode">word</property>
+            <property name="justification">fill</property>
+            <property name="buffer">historyTextBuffer</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
         </child>
       </object>
     </child>
@@ -570,7 +619,7 @@ Consulte la &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;Licencia P
           </packing>
         </child>
         <child>
-          <object class="GtkNotebook" id="configNoteBook">
+          <object class="GtkNotebook" id="configNotebook">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="group_name">acrcloud</property>
@@ -818,193 +867,516 @@ Consulte la &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;Licencia P
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="alsaBox">
+              <object class="GtkBox" id="soundBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkFrame">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">none</property>
                     <child>
-                      <object class="GtkLabel" id="alsaSndPcmFormatLabel">
+                      <object class="GtkAlignment">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="margin_left">3</property>
-                        <property name="margin_right">3</property>
-                        <property name="margin_top">3</property>
-                        <property name="margin_bottom">3</property>
-                        <property name="label" translatable="yes">Snd PCM Format</property>
-                        <property name="width_chars">17</property>
-                        <property name="max_width_chars">20</property>
+                        <property name="left_padding">12</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="driverControllerLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Controller</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="driverControllerComboBoxText">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="active">1</property>
+                                <property name="has_entry">True</property>
+                                <property name="popup_fixed_width">False</property>
+                                <items>
+                                  <item id="Alsa" translatable="yes">Alsa</item>
+                                  <item id="Pulse" translatable="yes">Pulse</item>
+                                </items>
+                                <child internal-child="entry">
+                                  <object class="GtkEntry" id="driverControllerEntry">
+                                    <property name="can_focus">False</property>
+                                    <property name="margin_left">3</property>
+                                    <property name="text" translatable="yes">Alsa</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="pcmBufferWriteCheckButton">
+                                <property name="label" translatable="yes">Write PCM Buffer</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
-                    <child>
-                      <object class="GtkComboBoxText" id="alsaSndPcmFormatComboBoxText">
+                    <child type="label">
+                      <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="margin_left">3</property>
-                        <property name="margin_right">3</property>
-                        <property name="margin_top">3</property>
-                        <property name="margin_bottom">3</property>
+                        <property name="label" translatable="yes">Driver</property>
                       </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">False</property>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkNotebook" id="driverControllerNotebook">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can_focus">True</property>
+                    <property name="show_tabs">False</property>
                     <child>
-                      <object class="GtkLabel" id="alsaRateLabel">
+                      <object class="GtkBox" id="alsaBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="margin_left">3</property>
-                        <property name="margin_right">3</property>
-                        <property name="margin_top">3</property>
-                        <property name="margin_bottom">3</property>
-                        <property name="label" translatable="yes">Recording Rate</property>
-                        <property name="width_chars">17</property>
-                        <property name="max_width_chars">20</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="alsaSndPcmFormatLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="label" translatable="yes">Snd PCM Format</property>
+                                <property name="width_chars">17</property>
+                                <property name="max_width_chars">20</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="alsaSndPcmFormatComboBoxText">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="alsaRateLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="label" translatable="yes">Recording Rate</property>
+                                <property name="width_chars">17</property>
+                                <property name="max_width_chars">20</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="alsaRateSpinButton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="input_purpose">number</property>
+                                <property name="adjustment">alsaRateAdjustment</property>
+                                <property name="climb_rate">10</property>
+                                <property name="numeric">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="alsaPcmBufferFramesLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="label" translatable="yes">PCM Buffer Frames</property>
+                                <property name="width_chars">17</property>
+                                <property name="max_width_chars">20</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="alsaPcmBufferFramesSpinButton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="input_purpose">number</property>
+                                <property name="adjustment">alsaPcmBufferFramesAdjustment</property>
+                                <property name="climb_rate">10</property>
+                                <property name="numeric">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="alsaPcmDeviceLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="label" translatable="yes">PCM Device</property>
+                                <property name="width_chars">17</property>
+                                <property name="max_width_chars">20</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="alsaPcmDeviceComboBoxText">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="tab">
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">page 1</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
+                        <property name="tab_fill">False</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="alsaRateSpinButton">
+                      <object class="GtkBox" id="pulseBox">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="margin_left">3</property>
-                        <property name="margin_right">3</property>
-                        <property name="margin_top">3</property>
-                        <property name="margin_bottom">3</property>
-                        <property name="input_purpose">number</property>
-                        <property name="adjustment">alsaRateAdjustment</property>
-                        <property name="climb_rate">10</property>
-                        <property name="numeric">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="pulsePaSampleFormatLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="label" translatable="yes">PA sample format</property>
+                                <property name="width_chars">17</property>
+                                <property name="max_width_chars">20</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="pulsePaSampleFormatComboBoxText">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="pulseRateLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="label" translatable="yes">Recording Rate</property>
+                                <property name="width_chars">17</property>
+                                <property name="max_width_chars">20</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="pulseRateSpinButton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="text" translatable="yes">8000</property>
+                                <property name="input_purpose">number</property>
+                                <property name="adjustment">alsaRateAdjustment</property>
+                                <property name="climb_rate">10</property>
+                                <property name="numeric">True</property>
+                                <property name="value">8000</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="pulsePcmBufferFramesLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="label" translatable="yes">PCM Buffer Frames</property>
+                                <property name="width_chars">17</property>
+                                <property name="max_width_chars">20</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="pulsePcmBufferFramesSpinButton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="text" translatable="yes">0</property>
+                                <property name="input_purpose">number</property>
+                                <property name="adjustment">alsaPcmBufferFramesAdjustment</property>
+                                <property name="climb_rate">10</property>
+                                <property name="numeric">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="pulsePcmDeviceLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                                <property name="label" translatable="yes">PCM Device</property>
+                                <property name="width_chars">17</property>
+                                <property name="max_width_chars">20</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="pulsePcmDeviceComboBoxText">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">3</property>
+                                <property name="margin_right">3</property>
+                                <property name="margin_top">3</property>
+                                <property name="margin_bottom">3</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child type="tab">
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">page 2</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                        <property name="tab_fill">False</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">False</property>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="alsaPcmBufferFramesLabel">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="margin_left">3</property>
-                        <property name="margin_right">3</property>
-                        <property name="margin_top">3</property>
-                        <property name="margin_bottom">3</property>
-                        <property name="label" translatable="yes">PCM Buffer Frames</property>
-                        <property name="width_chars">17</property>
-                        <property name="max_width_chars">20</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSpinButton" id="alsaPcmBufferFramesSpinButton">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="margin_left">3</property>
-                        <property name="margin_right">3</property>
-                        <property name="margin_top">3</property>
-                        <property name="margin_bottom">3</property>
-                        <property name="input_purpose">number</property>
-                        <property name="adjustment">alsaPcmBufferFramesAdjustment</property>
-                        <property name="climb_rate">10</property>
-                        <property name="numeric">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="pack_type">end</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">False</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="alsaPcmDeviceLabel">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="margin_left">3</property>
-                        <property name="margin_right">3</property>
-                        <property name="margin_top">3</property>
-                        <property name="margin_bottom">3</property>
-                        <property name="label" translatable="yes">PCM Device</property>
-                        <property name="width_chars">17</property>
-                        <property name="max_width_chars">20</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBoxText" id="alsaPcmDeviceComboBoxText">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="margin_left">3</property>
-                        <property name="margin_right">3</property>
-                        <property name="margin_top">3</property>
-                        <property name="margin_bottom">3</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">False</property>
-                    <property name="position">3</property>
                   </packing>
                 </child>
               </object>
@@ -1013,10 +1385,10 @@ Consulte la &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;Licencia P
               </packing>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="alsanoteBookLabel">
+              <object class="GtkLabel" id="soundNoteBookLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">alsa</property>
+                <property name="label" translatable="yes">sound</property>
               </object>
               <packing>
                 <property name="position">1</property>
@@ -1052,8 +1424,7 @@ Consulte la &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;Licencia P
     <property name="transient_for">zhavamMainWindow</property>
     <property name="attached_to">zhavamMainWindow</property>
     <signal name="close" handler="gtk_widget_hide" swapped="no"/>
-    <signal name="destroy" handler="gtk_widget_hide" swapped="no"/>
-    <signal name="destroy-event" handler="gtk_widget_hide" swapped="no"/>
+    <signal name="delete-event" handler="gtk_widget_hide" swapped="no"/>
     <child>
       <placeholder/>
     </child>
@@ -1087,6 +1458,7 @@ Consulte la &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;Licencia P
                 <property name="margin_top">3</property>
                 <property name="margin_bottom">3</property>
                 <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
