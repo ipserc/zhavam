@@ -46,8 +46,17 @@ typedef struct
 	char track_id[VALUE_MAX_LEN];
 } spotify_t;
 
+//"metadata.music.external_metadata.deezer.album.id"
 typedef struct
 {
+	char album_id[VALUE_MAX_LEN];
+	char artist_id[VALUE_MAX_LEN];
+	char track_id[VALUE_MAX_LEN];
+} deezer_t;
+
+typedef struct
+{
+	deezer_t deezer;
 	spotify_t spotify;
 	char youtube_vid[VALUE_MAX_LEN];
 } external_metadata_t;
@@ -96,10 +105,10 @@ typedef struct
  * Prototypes
  */
 /* zhavam_jsonparser.c */
-void initAcrDataT(acr_data_t * acrResponse);
+void initAcrDataT(acr_data_t *acrData);
 char *substMusicIndex(char *string, char fcar, char tcar);
 char *setUpAcrResponseField(char *tpath, int musicIndex, char *acrResponseField, char *jsonMsg, jsmntok_t *jsmnTokenArray);
-int getIndexBestMusicScore(char *jsonMsg, jsmntok_t *jsonTokenArray);
+int getIndexBestMusicScore(char *jsonMsg, jsmntok_t *jsmnTokenArray);
 int getAcrData(char *jsonMsg, acr_data_t *acrResponse);
 
 #endif /* SOURCE_ZHAVAM_JSONPARSER_H_ */

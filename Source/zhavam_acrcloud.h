@@ -15,6 +15,7 @@
  */
 typedef enum _zhv_acr_rec_type
 {
+	ind_acr_opt_rec_unknown = -1,
 	ind_acr_opt_rec_audio,
 	ind_acr_opt_rec_humming,
 	ind_acr_opt_rec_both,
@@ -26,8 +27,8 @@ typedef enum _zhv_acr_rec_type
  */
 /* zhavam_acrcloud.c */
 char **getZhvAcrOptRecStr(void);
-ACRCLOUD_OPT_REC_TYPE recTypeDecode(const char *recTypeString);
-char *recTypeString(char *acrcloud_rec_type_str, ACRCLOUD_OPT_REC_TYPE acrcloud_rec_type);
+zhv_acr_rec_t recTypeDecode(const char *recTypeString);
+char *recTypeString(zhv_acr_rec_t acrcloud_rec_type);
 char *recognize(acrcloud_config acrConfig, char *pcm_buffer, int pcm_buffer_len, int nchannels, int sample_rate);
 
 #endif /* SOURCE_ZHAVAN_ARCCLOUD_H_ */

@@ -39,7 +39,7 @@ int errno;
 #define WARNING14 "Unable to create file:%s"
 #define WARNING15 "Unable to get zhavam home:%s"
 #define WARNING16 "Could not parse file %s"
-#define WARNING17 "WARNING17"
+#define WARNING17 "Unknown device driver controller, may be it is no t set."
 #define WARNING18 "WARNING18"
 #define WARNING19 "WARNING19"
 
@@ -74,6 +74,7 @@ int errno;
 /*
  * Prototypes
  */
+/* zhavam_errtra.c */
 void funcError(const char *fileName, const char *functionName, const int lineNbr, const int errorNbr, const char *fmtstr, ...);
 void eError(const char *fmtstr, ...);
 void funcTrace(const char *fileName, const char *functionName, const int lineNbr, const char *fmtstr, ...);

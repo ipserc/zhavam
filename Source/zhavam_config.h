@@ -11,16 +11,34 @@
 
 #include <gtk/gtk.h>
 #include "zhavam_alsa.h"
+#include "zhavam_pulse.h"
 #include "zhavam_devices.h"
+
+typedef enum
+{
+	ALSA,
+	PULSE,
+	LAST_CONTROLLER,
+	UNKNOWN_CONTROLLER = -1
+} driverController_t;
 
 /**
  * ZhavamConf structure
  */
 typedef struct {
+	char appName[256];
 	acrcloud_config acrcloud;
-	alsa_config alsa;
+	driverController_t driverController;
+	alsa_config_t alsa;
+	pulse_config_t pulse;
 } zhavamConf_t;
 
+/*
+ * prototypes
+ */
+/* zhavam_config.c */
+zhavamConf_t *newZhavamConf(void);
+zhavamConf_t *getZhavamConf(void);
 void gtkSetAcrCloudHostEntry(zhavamConf_t *ptZhavamConf);
 const char *gtkGetAcrCloudHostEntry(void);
 void gtkSetAcrCloudAccessKeyEntry(zhavamConf_t *ptZhavamConf);
@@ -44,8 +62,25 @@ void gtkConfigCloseButton(GtkButton *configCloseButton, gpointer user_data);
 void configUpdate(zhavamConf_t *ptZhavamConf);
 void gtkConfigSaveButton(GtkButton *configCloseButton, gpointer user_data);
 void gtkConfigCleanButton(GtkButton *configCloseButton, gpointer user_data);
-void gtkConfigDialogSetUp(zhavamConf_t *ptZhavamConf, list_t *pcmRecDevList);
+void gtkSetDriverControllerNotebookPage(zhavamConf_t * ptZhavamConf);
+void gtkConfigDialogSetUp(zhavamConf_t *ptZhavamConf);
 void gtkZhavamConfigReload(GtkImageMenuItem *menuConfigReload, gpointer user_data);
 void gtkZhavamConfigSave(GtkImageMenuItem *menuConfigSave, gpointer user_data);
+void gtkSetPulsePaSampleFormatComboBoxText(zhavamConf_t *ptZhavamConf);
+char *gtkGetPulsePaSampleFormatComboBoxText(void);
+void gtkSetPulseRateSpinButton(zhavamConf_t *ptZhavamConf);
+int gtkGetPulseRateSpinButton(void);
+void gtkSetPulsePcmBufferFramesSpinButton(zhavamConf_t *ptZhavamConf);
+int gtkGetPulsePcmBufferFramesSpinButton(void);
+void gtkSetPulsePcmDeviceComboBoxText(list_t *pcmRecDevList, zhavamConf_t *ptZhavamConf);
+char *gtkGetPulsePcmDeviceComboBoxText(void);
+char **getZhvDriverControllerList(void);
+void gtkSetDefaultDriverController(GtkComboBoxText *driverControllerComboBoxText, zhavamConf_t *ptZhavamConf);
+void gtkSetDriverControllerEntry(zhavamConf_t *ptZhavamConf);
+void gtkSetDriverControllerComboBoxText(zhavamConf_t *ptZhavamConf);
+char *gtkGetdriverControllerComboBoxText(void);
+driverController_t driverControllerDecode(const char *driverControllerStr);
+char *driverControllerString(driverController_t driverController);
+void printZhavamConf(zhavamConf_t *ptZhavamConf);
 
 #endif /* SOURCE_ZHAVAM_CONFIG_H_ */

@@ -41,6 +41,10 @@ void initAcrDataT(acr_data_t * acrData)
 	acrData->metadata.music.external_metadata.spotify.album_id[0] = '\0';
 	acrData->metadata.music.external_metadata.spotify.artist_id[0] = '\0';
 	acrData->metadata.music.external_metadata.spotify.track_id[0] = '\0';
+	acrData->metadata.music.external_metadata.deezer.album_id[0] = '\0';
+	acrData->metadata.music.external_metadata.deezer.artist_id[0] = '\0';
+	acrData->metadata.music.external_metadata.deezer.track_id[0] = '\0';
+
 }
 
 /**
@@ -163,6 +167,8 @@ int getAcrData(char * jsonMsg, acr_data_t * acrResponse)
 	setUpAcrResponseField("metadata.music[0].external_metadata.spotify.album.id", musicIndex, acrResponse->metadata.music.external_metadata.spotify.album_id, jsonMsg, jsmnTokenArray);
 	setUpAcrResponseField("metadata.music[0].external_metadata.spotify.track.id", musicIndex, acrResponse->metadata.music.external_metadata.spotify.track_id, jsonMsg, jsmnTokenArray);
 	setUpAcrResponseField("metadata.music[0].external_metadata.youtube.vid", musicIndex, acrResponse->metadata.music.external_metadata.youtube_vid, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].external_metadata.deezer.album.id", musicIndex, acrResponse->metadata.music.external_metadata.deezer.album_id, jsonMsg, jsmnTokenArray);
+	setUpAcrResponseField("metadata.music[0].external_metadata.deezer.track.id", musicIndex, acrResponse->metadata.music.external_metadata.deezer.track_id, jsonMsg, jsmnTokenArray);
 
 	return EXIT_SUCCESS;
 }
