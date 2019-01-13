@@ -25,7 +25,8 @@ INCLUDES += -I/opt/include
 # LFLAGS = -L/home/newhall/lib  -L../lib
 # Removed cause gmodule is dumping core LFLAGS += $(shell pkg-config --libs gtk+-3.0 gmodule-2.0 glib-2.0 libxml-2.0)
 LFLAGS += $(shell pkg-config --libs gtk+-3.0 glib-2.0 libxml-2.0 libconfig libpulse-simple libpulse)
-LFLAGS += -L/home/ipserc/workspace_oxigen/zhavam/lib -L/opt/lib
+LFLAGS += -L../lib -L/opt/lib
+
 
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
