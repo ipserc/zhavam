@@ -8,11 +8,12 @@
 #include <string.h>
 #include "zhavam_acrcloud.h"
 #include "acrcloud_recognizer.h"
+#include "zhavam_errtra.h"
 
 /**
  * String array with the names for acr_opt_rec
  */
-char * zhv_acr_opt_rec_str[] = {
+static const char * zhv_acr_opt_rec_str[] = {
 		"acr_opt_rec_audio",
 		"acr_opt_rec_humming",
 		"acr_opt_rec_both"
@@ -22,10 +23,10 @@ char * zhv_acr_opt_rec_str[] = {
  * Array with the indexes for getting the strings from zhv_acr_opt_rec_str
  * A pseudo-dictionary
  */
-int zhv_acr_opt_rec_int[] = {
-		acr_opt_rec_audio,
-		acr_opt_rec_humming,
-		acr_opt_rec_both
+static const int zhv_acr_opt_rec_int[] = {
+		ind_acr_opt_rec_audio,
+		ind_acr_opt_rec_humming,
+		ind_acr_opt_rec_both
 };
 
 /**
@@ -41,12 +42,13 @@ char ** getZhvAcrOptRecStr(void)
  * @param recTypeString: The zhv_acr_opt_rec_str string
  * @return the zhv_acr_opt_rec_int associated
  */
-ACRCLOUD_OPT_REC_TYPE recTypeDecode(const char * recTypeString)
+zhv_acr_rec_t recTypeDecode(const char * recTypeString)
 {
-	if (!strcmp(recTypeString, "acr_opt_rec_audio")) return acr_opt_rec_audio;
-	if (!strcmp(recTypeString, "acr_opt_rec_humming")) return acr_opt_rec_humming;
-	if (!strcmp(recTypeString, "acr_opt_rec_both")) return acr_opt_rec_both;
-	return -1;
+	for (int i = ind_acr_opt_rec_audio; i < ind_last_acr_opt_rec; ++i)
+	{
+		if (!strcmp(recTypeString, zhv_acr_opt_rec_str[i])) return i;
+	}
+	return ind_acr_opt_rec_unknown;
 }
 
 /**
@@ -55,16 +57,10 @@ ACRCLOUD_OPT_REC_TYPE recTypeDecode(const char * recTypeString)
  * @param acrcloud_rec_type: The given given zhv_acr_opt_rec_int value
  * @return a pointer to the string with the zhv_acr_opt_rec_str value copied
  */
-char * recTypeString(char * acrcloud_rec_type_str, ACRCLOUD_OPT_REC_TYPE acrcloud_rec_type)
+char * recTypeString(zhv_acr_rec_t acrcloud_rec_type)
 {
-	switch (acrcloud_rec_type)
-	{
-	case acr_opt_rec_audio:   acrcloud_rec_type_str = strcpy(acrcloud_rec_type_str, "acr_opt_rec_audio"); break;
-	case acr_opt_rec_humming: acrcloud_rec_type_str = strcpy(acrcloud_rec_type_str, "acr_opt_rec_humming"); break;
-	case acr_opt_rec_both:    acrcloud_rec_type_str = strcpy(acrcloud_rec_type_str, "acr_opt_rec_both"); break;
-	default: acrcloud_rec_type_str = strcpy(acrcloud_rec_type_str, "acr_opt_rec_audio");
-	}
-	return acrcloud_rec_type_str;
+	if (acrcloud_rec_type < 0 || acrcloud_rec_type >= ind_last_acr_opt_rec) return zhv_acr_opt_rec_str[0];
+	else return zhv_acr_opt_rec_str[acrcloud_rec_type];
 }
 
 /**

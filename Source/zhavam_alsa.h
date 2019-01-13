@@ -20,21 +20,24 @@
 extern char STATUS_MESSAGE[];
 extern int errno;
 
+#define SND_PCM_FORMAT_UNKNOWN -1
+
 /**
- * PCM format enumerator
+ * PCM format enumerator for zhavam
  */
-typedef enum _zhv_snd_pcm_format
+typedef enum _zhv_alsa_snd_pcm_format
 {
-	IND_PCM_FORMAT_S8,
-	IND_PCM_FORMAT_U8,
-	IND_PCM_FORMAT_S16,
-	IND_PCM_FORMAT_U16,
-	IND_PCM_FORMAT_S24,
-	IND_PCM_FORMAT_U24,
-	IND_PCM_FORMAT_S32,
-	IND_PCM_FORMAT_U32,
-	IND_LAST_PCM_FORMAT
-}zhv_snd_pcm_format_t;
+	IND_SND_PCM_FORMAT_S8 ,
+	IND_SND_PCM_FORMAT_U8 ,
+	IND_SND_PCM_FORMAT_S16,
+	IND_SND_PCM_FORMAT_U16,
+	IND_SND_PCM_FORMAT_S24,
+	IND_SND_PCM_FORMAT_U24,
+	IND_SND_PCM_FORMAT_S32,
+	IND_SND_PCM_FORMAT_U32,
+	IND_SND_PCM_FORMAT_LAST_ITEM,
+	IND_SND_PCM_FORMAT_UNKNOWN = -1
+} zhv_alsa_snd_pcm_format_t;
 
 /**
  * ALSA configuration parameters structure
@@ -45,21 +48,22 @@ typedef struct
 	unsigned int rate;
 	unsigned int pcm_buffer_frames;
 	char * pcm_dev;
-} alsa_config;
+} alsa_config_t;
 
 /*
  * prototypes
  */
-char **getZhvSndPcmFormatStr(void);
-snd_pcm_format_t sndPcmFormatDecode(const char * strSndPcmFormat);
-char *pcmFormatString(char *strSndPcmFormat, snd_pcm_format_t sndPcmFormat);
+/* zhavam_alsa.c */
+char **getZhvAlsaSndPcmFormatList(void);
+snd_pcm_format_t alsaSndPcmFormatDecode(const char *strSndPcmFormat);
+char *alsaSndPcmFormatString(snd_pcm_format_t sndPcmFormat);
 int openDevice(char *devID, snd_pcm_t **ptr_capture_handle, snd_pcm_hw_params_t **ptr_hw_params);
 int setupDevice(snd_pcm_t *capture_handle, snd_pcm_hw_params_t *hw_params, snd_pcm_format_t format, unsigned int *rate);
 int setupAudioDevice(char *devID, snd_pcm_t *capture_handle, snd_pcm_hw_params_t *hw_params, snd_pcm_format_t format, unsigned int *rate);
 int pcmPrepare(snd_pcm_t *capture_handle);
 void printPcmBuffer(size_t size, char *pcm_buffer);
-void writePcmBuffer(size_t size, char *pcm_buffer);
-int startRecord(snd_pcm_t *capture_handle, snd_pcm_hw_params_t *hw_params, snd_pcm_format_t format, unsigned int sample_rate, unsigned int pcm_buffer_frames, acrcloud_config acrConfig, acr_data_t *acrResponse);
+void writePcmBuffer(size_t nmemb, char *pcm_buffer);
+int alsaStartRecord(snd_pcm_t *capture_handle, snd_pcm_hw_params_t *hw_params, snd_pcm_format_t format, unsigned int sample_rate, unsigned int pcm_buffer_frames, acrcloud_config acrConfig, acr_data_t *acrResponse);
 int closeDevice(snd_pcm_t *capture_handle);
 
 #endif /* SOURCE_ZHAVAM_ALSA_H_ */

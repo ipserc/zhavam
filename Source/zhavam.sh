@@ -1,5 +1,5 @@
 #!/bin/bash
 
-export LD_LIBRARY_PATH=/usr/local/lib/acrcloud
-cd /usr/local/bin/zhavam
+export LD_LIBRARY_PATH=/opt/lib
+#cd /opt/bin/zhavam
 ./zhavam
