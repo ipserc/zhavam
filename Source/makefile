@@ -40,6 +40,7 @@ LIBS += -lz -lm -lasound -lacrcloud_recognizer
 SRCS =  jsmn.c \
 		jsmnRipper.c \
 		list.c \
+		strrep.c\
 		zhavam.c  \
 		zhavam_acrcloud.c  \
 		zhavam_alsa.c  \

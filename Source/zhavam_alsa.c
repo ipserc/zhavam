@@ -49,7 +49,7 @@ static const int zhv_alsa_snd_pcm_format_int[] = {
  * get "method" to "member" variable zhv_snd_pcm_format_str
  * @returns the array with SND_PCM_FORMAT names
  */
-char ** getZhvAlsaSndPcmFormatList(void)
+const char ** getZhvAlsaSndPcmFormatList(void)
 {
 	return zhv_alsa_snd_pcm_format_str;
 }
@@ -73,7 +73,7 @@ snd_pcm_format_t alsaSndPcmFormatDecode(const char * strSndPcmFormat)
  * @param sndPcmFormat: The enumerator for the sound pcm format
  * @return the SND_PCM_FORMAT name or "SND_PCM_FORMAT_S8" if not found
  */
-char * alsaSndPcmFormatString(snd_pcm_format_t sndPcmFormat)
+const char * alsaSndPcmFormatString(snd_pcm_format_t sndPcmFormat)
 {
 	int i;
 	for(i = IND_SND_PCM_FORMAT_S8; i < IND_SND_PCM_FORMAT_LAST_ITEM; ++i)
@@ -98,8 +98,11 @@ int openDevice(char * devID,
 		sprintf(STATUS_MESSAGE, "cannot open audio device %s (%s)",
 			   devID,
 			   snd_strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		ERROR("%s", STATUS_MESSAGE);
 		return errno;
 	}
@@ -109,8 +112,11 @@ int openDevice(char * devID,
 	if ((errno = snd_pcm_hw_params_malloc(ptr_hw_params)) < 0) {
 		sprintf(STATUS_MESSAGE, "cannot allocate hardware parameter structure (%s)",
 				snd_strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		ERROR("%s", STATUS_MESSAGE);
 		return errno;
 	}
@@ -140,8 +146,11 @@ int setupDevice(snd_pcm_t * capture_handle,
 	if ((errno = snd_pcm_hw_params_any(capture_handle, hw_params)) < 0) {
 		sprintf(STATUS_MESSAGE, "cannot initialize hardware parameter structure (%s)",
 			 snd_strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		ERROR("%s", STATUS_MESSAGE);
 		return errno;
 	}
@@ -152,8 +161,11 @@ int setupDevice(snd_pcm_t * capture_handle,
 	if ((errno = snd_pcm_hw_params_set_access(capture_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
 		sprintf (STATUS_MESSAGE, "cannot set access type (%s)",
 			 snd_strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		ERROR("%s", STATUS_MESSAGE);
 		return errno;
 	}
@@ -164,8 +176,11 @@ int setupDevice(snd_pcm_t * capture_handle,
 	if ((errno = snd_pcm_hw_params_set_format(capture_handle, hw_params, format)) < 0) {
 		sprintf(STATUS_MESSAGE, "cannot set sample format (%s)",
 			 snd_strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		ERROR("%s", STATUS_MESSAGE);
 		return errno;
 	}
@@ -176,8 +191,11 @@ int setupDevice(snd_pcm_t * capture_handle,
 	if ((errno = snd_pcm_hw_params_set_rate_near(capture_handle, hw_params, rate, 0)) < 0) {
 		sprintf(STATUS_MESSAGE, "cannot set sample rate (%s)",
 			 snd_strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		ERROR("%s", STATUS_MESSAGE);
 		return errno;
 	}
@@ -205,8 +223,10 @@ int setupDevice(snd_pcm_t * capture_handle,
 	if ((errno = snd_pcm_hw_params(capture_handle, hw_params)) < 0) {
 		sprintf(STATUS_MESSAGE, "cannot set hw parameters (%s)",
 			 snd_strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder()) {
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		ERROR("%s", STATUS_MESSAGE);
 		return errno;
 	}
@@ -240,8 +260,11 @@ int setupAudioDevice(char * devID,
 	snd_pcm_hw_params_free(hw_params);
 	sprintf(STATUS_MESSAGE, "hw_params freed");
 	if ((errno = pcmPrepare(capture_handle)) < 0) {
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		ERROR("%s", STATUS_MESSAGE);
 		return errno;
 	}
@@ -260,8 +283,11 @@ int pcmPrepare(snd_pcm_t * capture_handle)
 	if ((errno = snd_pcm_prepare(capture_handle)) < 0) {
 		sprintf (STATUS_MESSAGE, "cannot prepare audio interface for use (%s)",
 			   snd_strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		ERROR("%s", STATUS_MESSAGE);
 	}
 	else {
@@ -292,9 +318,16 @@ void printPcmBuffer(size_t size,
 void writePcmBuffer(size_t nmemb,
 					char * pcm_buffer)
 {
-	// Writes only if the check button at sound driver config section is set
-	GtkWidget * pcmBufferWriteCheckButton = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "pcmBufferWriteCheckButton"));
-	if (!gtk_toggle_button_get_active ((GtkToggleButton *)pcmBufferWriteCheckButton)) return;
+	if (getGtkBuilder())
+	{
+		// Writes only if the check button at sound driver config section is set
+		GtkWidget * pcmBufferWriteCheckButton = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "pcmBufferWriteCheckButton"));
+		if (!gtk_toggle_button_get_active ((GtkToggleButton *)pcmBufferWriteCheckButton)) return;
+	}
+	else
+	{
+		if (!getZhvParams()->buffer) return;
+	}
 
 	char zhvGrabacionHome[2*ZHVHOMELEN];
 	char home[ZHVHOMELEN];
@@ -306,11 +339,16 @@ void writePcmBuffer(size_t nmemb,
 	if (!file) {
 		sprintf (STATUS_MESSAGE, "Cannot open %s for writing the pcm buffer. IO Error (%s)",
 				zhvGrabacionHome, strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
 		TRACE("%s", STATUS_MESSAGE);
 		return;
 	}
+	sprintf (STATUS_MESSAGE, "pcm buffer written at %s", zhvGrabacionHome);
+	TRACE("%s", STATUS_MESSAGE);
 	fwrite(pcm_buffer, sizeof(char), nmemb, file);
 	fclose(file);
 }
@@ -336,37 +374,49 @@ int alsaStartRecord(snd_pcm_t * capture_handle,
 {
 	char * pcm_buffer;
 	char * reconResponse;
-	size_t pcm_buffer_len = pcm_buffer_frames * snd_pcm_format_width(format) / 8 * 2;
+	size_t pcm_buffer_len = pcm_buffer_frames * snd_pcm_format_width(format) / 4; // I don't know why it must be divided by 4
 	if (!(pcm_buffer = malloc(pcm_buffer_len))) {
-		sprintf (STATUS_MESSAGE, "memory allocation failed (%s)",
-			  strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
-		//ERROR("%s", STATUS_MESSAGE);
+		sprintf (STATUS_MESSAGE, "memory allocation failed (%s)", strerror(errno));
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", STATUS_MESSAGE);
+		}
+		else ERROR("%s", STATUS_MESSAGE);
 		return errno;
 	}
+	memset(pcm_buffer, 0, pcm_buffer_len);
 	sprintf(STATUS_MESSAGE, "pcm_buffer allocated size:%lu", pcm_buffer_len);
 	unsigned int nchannels;
 	if ((errno = snd_pcm_hw_params_get_channels(hw_params, &nchannels)) < 0) {
-		sprintf (STATUS_MESSAGE, "Cannot get channels (%s)",
-			  snd_strerror(errno));
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", STATUS_MESSAGE);
-		//ERROR("%s", STATUS_MESSAGE);
-		return errno;
-	}
-	sprintf(STATUS_MESSAGE, "START READING from audio interface...");
-	gtkSetStatusZhvLabel(STATUS_MESSAGE);
-	for (int i = 0; i < 3; ++i) {
-		if ((errno = snd_pcm_readi(capture_handle, pcm_buffer, pcm_buffer_frames)) != pcm_buffer_frames) {
-			sprintf (STATUS_MESSAGE, "read from audio interface failed (%s)",
-				  snd_strerror(errno));
+		sprintf (STATUS_MESSAGE, "Cannot get channels (%s)", snd_strerror(errno));
+		if (getGtkBuilder())
+		{
 			gtkSetCursor(NORMAL_CURSOR);
 			gtkWarning("%s", STATUS_MESSAGE);
-			//ERROR("%s", STATUS_MESSAGE);
+		}
+		else ERROR("%s", STATUS_MESSAGE);
+		return errno;
+	}
+	sprintf(STATUS_MESSAGE, STATUS05);
+	if (getGtkBuilder()) gtkSetStatusZhvLabel(STATUS_MESSAGE);
+	for (int i = 1; i < 4; ++i) {
+		if ((errno = snd_pcm_readi(capture_handle, pcm_buffer, pcm_buffer_frames)) != pcm_buffer_frames)
+		{
+			sprintf (STATUS_MESSAGE, "read from audio interface failed (%s)", snd_strerror(errno));
+			if (getGtkBuilder())
+			{
+				gtkSetCursor(NORMAL_CURSOR);
+				gtkWarning("%s", STATUS_MESSAGE);
+			}
+			else ERROR("%s", STATUS_MESSAGE);
 			return errno;
 		}
-		sprintf(STATUS_MESSAGE, "read %d done", i);
+		else
+		{
+			sprintf(STATUS_MESSAGE, "read %d done", i);
+			TRACE("%s", STATUS_MESSAGE);
+		}
 
 		/* FOR DEBUGGING PURPOSES */
 		writePcmBuffer(pcm_buffer_len, pcm_buffer);
@@ -384,6 +434,8 @@ int alsaStartRecord(snd_pcm_t * capture_handle,
 	}
 	free(pcm_buffer);
 	sprintf(STATUS_MESSAGE, "pcm_buffer freed");
+	sprintf(STATUS_MESSAGE, STATUS02);
+	if (getGtkBuilder()) gtkSetStatusZhvLabel(STATUS_MESSAGE);
 	return atoi(acrResponse->status.code);
 }
 
