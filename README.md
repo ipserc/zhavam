@@ -1,4 +1,4 @@
-# zhavam (C project)
+# zhavam
 Front end for music recognition over Linux
 
 Zhavam connects with Alsa or Pulse Drivers to record a small part of the song and then sends it to ACRCloud. ACRCloud responds with the song data in a Json message. The data recovered from the service includes the title of the song, the artist, the album, the genre of the year, etc.
