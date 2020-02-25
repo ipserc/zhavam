@@ -11,13 +11,15 @@
 #include <gtk/gtk.h>
 #include "zhavam_config.h"
 
-#define VERSION "1.3"
-#define COMPILATION "2018-12-31"
+#define VERSION "1.4"
+#define COMPILATION "2020-02-20"
 
 #define NORMAL_CURSOR GDK_LEFT_PTR
 
 #define BASENAMELEN 1001
 #define PATHNAMELEN 4001
+
+#define ZHVTRACKINFOTEXTLEN 5000
 
 #define TEXTZHAVAMDO 1001
 
@@ -26,11 +28,43 @@
 #define ZHVFILENAME "zhavam.conf"
 #define ZHVAPPNAME "zhavam"
 
+/**
+ * Status messages
+ */
+#define STATUS00 "Loaded successfully"
+#define STATUS01 "Capturing sound from device and recognizing"
+#define STATUS02 "Ready to capture again"
+#define STATUS03 "acr cloud is not set. Unable to connect"
+#define STATUS04 "Device driver controller is not available"
+#define STATUS05 "STARTING READING from audio interface..."
+
+#define DEV_COMBO_TEXT_LINE_LEN 50
+
+/**
+ * options
+ * --nogui		-g	no GUI, command line mode
+ * --loop		-l	loop mode. Press ctrl-c to quit
+ * --help		-h	help
+ * --config		-c	dumps the configuration on the screen.
+ * --buffer		-b	writes pcm buffer (forces the no GUI mode)
+ * --version	-V	prints zhavam version.
+ */
+
+typedef struct
+{
+	bool nogui;
+	bool loop;
+	bool help;
+	bool config;
+	bool version;
+	bool buffer;
+} zhvParams_t;
+
 /*
  * Prototypes
  */
 /* zhavam.c */
-GtkBuilder *newGtkBuilder(void);
+GtkBuilder *setGtkBuilder(void);
 GtkBuilder *getGtkBuilder(void);
 int doZhavam(char *devID, acr_data_t *acrResponse);
 char *acrDataToText(char *trackInfoText, acr_data_t *acrResponse);
@@ -55,12 +89,12 @@ void gtkZhavamAbout(GtkImageMenuItem *menuHelpAbout, gpointer user_data);
 void gtkDialogWarningClose(GtkImageMenuItem *buttonDialogWarning, gpointer user_data);
 void gtkDriverControllerComboBoxTextChange(GtkComboBoxText *driverControllerComboBoxText, gpointer user_data);
 void gtkSignalsConnect(void);
-void createZhavamConf(char *zhvHome, zhavamConf_t *ptZhavamConf);
-int configLoad(char *zhvHome, zhavamConf_t *ptZhavamConf);
-void initZhavamConfigStruct(zhavamConf_t *ptZhavamConf);
-void setupZhavamConfigStruct(zhavamConf_t *ptZhavamConf);
-void writeZhavamConfig(char *zhavamHome, zhavamConf_t *ptZhavamConf);
-void zhavamConfig(zhavamConf_t *ptZhavamConf);
+void zhavamHelp(void);
+zhvParams_t *setZhvParams(void);
+zhvParams_t *getZhvParams(void);
+zhvParams_t *readZhvParams(int argc, char *argv[]);
+int zhavamCCI(void);
+void zhavamGUI(void);
 int main(int argc, char *argv[]);
 
 #endif /* SOURCE_ZHAVAM_H_ */

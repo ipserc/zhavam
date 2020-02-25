@@ -25,6 +25,7 @@ extern char STATUS_MESSAGE[];
 
 #define LONG_LEN 511
 #define SHORT_LEN 255
+#define DEV_COMBO_TEXT_LINE_LEN 50
 
 
 // 01-00: ALC892 Analog : ALC892 Analog : playback 1 : capture 1

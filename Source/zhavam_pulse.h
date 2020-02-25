@@ -62,12 +62,15 @@ typedef struct
  * prototypes
  */
 /* zhavam_pulse.c */
-char **getZhvPaSampleFormatStr(void);
+const char **getZhvPaSampleFormatStr(void);
 pa_sample_format_t pulsePaSampleFormatDecode(const char *strPaSampleFormat);
-char *pulsePaSampleFormatString(zhv_pa_sample_format_t paSampleFormat);
+const char *pulsePaSampleFormatString(zhv_pa_sample_format_t paSampleFormat);
 pa_sample_spec *getPaSampleSpec(void);
+pa_sample_format_t getPulsePaSampleFormatStr(void);
+uint32_t getPulseRate(void);
 pa_sample_spec *setPaSampleSpec(void);
 pa_buffer_attr *getPaBufferAttr(void);
+unsigned int getPulsePcmBufferFrames(void);
 pa_buffer_attr *setPaBufferAttr(void);
 pa_simple *pulseServerConnect(char *devID);
 int pulseStartRecord(pa_simple *ptrPaSimple, acrcloud_config acrConfig, acr_data_t *acrResponse);

@@ -8,13 +8,15 @@
 #include <gtk/gtk.h>
 
 #include <stdio.h>
+#include <libconfig.h>
+#include <sys/stat.h>
 
 #include "zhavam.h"
 #include "zhavam_errtra.h"
 #include "zhavam_config.h"
 
 /**
- * Static "private method" to create or get the zhavamConf_t * zhavamConf "member" variable. DO NOT CALL IT DIRECTLY
+ * Static "private method" to set or get the the zhavamConf_t * zhavamConf "member" variable. DO NOT CALL IT DIRECTLY
  * @param method: Selector for (0) create a new instance or returning the one created
  * @return static zhavamConf_t * zhavamConf
  */
@@ -22,24 +24,24 @@ static zhavamConf_t * zhavamConf(int method)
 {
 	static zhavamConf_t zhavamConf;
 
-	if (method == 0) //NEW
+	if (method == 0) //SET
 	{
-		initZhavamConfigStruct(&zhavamConf);
+		setupZhavamConfigStruct(&zhavamConf);
 	}
 	return &zhavamConf;
 }
 
 /**
- * "Instantiates" a new zhavamConf_t * zhavamConf "member" pointer. Use it to create it
+ * Sets zhavamConf_t * zhavamConf pointer to the static variable. Use it to create it
  * @return static zhavamConf_t * zhavamConf
  */
-zhavamConf_t * newZhavamConf()
+zhavamConf_t * setZhavamConf()
 {
 	return (zhavamConf_t *)zhavamConf(0);
 }
 
 /**
- * Returns the zhavamConf_t * zhavamConf "member" variable
+ * Returns the zhavamConf_t * zhavamConf static variable
  * @return static zhavamConf_t * zhavamConf
  */
 zhavamConf_t * getZhavamConf()
@@ -141,7 +143,7 @@ void gtkSetAcrCloudRecTypeComboBoxText(zhavamConf_t * ptZhavamConf)
 
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)acrCloudRecTypeComboBoxText);
 
-	char ** zhv_acr_opt_rec_str = getZhvAcrOptRecStr();
+	const char ** zhv_acr_opt_rec_str = getZhvAcrOptRecStr();
 	for (int i = ind_acr_opt_rec_audio; i < ind_last_acr_opt_rec; ++i)
 		gtk_combo_box_text_append_text((GtkComboBoxText *)acrCloudRecTypeComboBoxText, zhv_acr_opt_rec_str[i]);
 	gtk_combo_box_set_active((GtkComboBox *)acrCloudRecTypeComboBoxText, ptZhavamConf->acrcloud.rec_type_);
@@ -167,7 +169,7 @@ void gtkSetAlsaSndPcmFormatComboBoxText(zhavamConf_t * ptZhavamConf)
 
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)alsaSndPcmFormatComboBoxText);
 
-	char ** zhv_alsa_snd_pcm_format_list = getZhvAlsaSndPcmFormatList();
+	const char ** zhv_alsa_snd_pcm_format_list = getZhvAlsaSndPcmFormatList();
 	for (int i = SND_PCM_FORMAT_S8; i < IND_SND_PCM_FORMAT_LAST_ITEM; ++i) {
 		gtk_combo_box_text_append_text((GtkComboBoxText *)alsaSndPcmFormatComboBoxText, zhv_alsa_snd_pcm_format_list[i]);
 	}
@@ -450,7 +452,7 @@ void gtkSetPulsePaSampleFormatComboBoxText(zhavamConf_t * ptZhavamConf)
 
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)pulsePaSampleFormatComboBoxText);
 
-	char ** zhv_pulse_pa_sample_format_str = getZhvPaSampleFormatStr();
+	const char ** zhv_pulse_pa_sample_format_str = getZhvPaSampleFormatStr();
 	for (int i = IND_PA_SAMPLE_U8; i < IND_PA_SAMPLE_MAX; ++i)
 		gtk_combo_box_text_append_text((GtkComboBoxText *)pulsePaSampleFormatComboBoxText, zhv_pulse_pa_sample_format_str[i]);
 	gtk_combo_box_set_active((GtkComboBox *)pulsePaSampleFormatComboBoxText, ptZhavamConf->pulse.pa_sample_format);
@@ -537,7 +539,7 @@ char * gtkGetPulsePcmDeviceComboBoxText(void)
 /**
  * "member" variable with the text names of the driverController used
  */
-static char * zhv_driverController_str[] = {
+static const char * zhv_driverController_str[] = {
 		"Alsa",
 		"Pulse",
 		"Unknown"
@@ -547,7 +549,7 @@ static char * zhv_driverController_str[] = {
  * get "method" to "member" variable zhv_driverController_str
  * @returns the array with driverController names
  */
-char ** getZhvDriverControllerList(void)
+const char ** getZhvDriverControllerList(void)
 {
 	return zhv_driverController_str;
 }
@@ -563,7 +565,7 @@ void gtkSetDefaultDriverController(GtkComboBoxText * driverControllerComboBoxTex
 	{
 		int index = 0;
 		char * comboText;
-		char * driverControllerStr = driverControllerString(ptZhavamConf->driverController);
+		const char * driverControllerStr = driverControllerString(ptZhavamConf->driverController);
 		do
 		{
 			gtk_combo_box_set_active((GtkComboBox *)driverControllerComboBoxText, index++);
@@ -586,8 +588,8 @@ void gtkSetDefaultDriverController(GtkComboBoxText * driverControllerComboBoxTex
 void gtkSetDriverControllerEntry(zhavamConf_t * ptZhavamConf)
 {
 	GtkWidget * driverControllerEntry = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "driverControllerEntry"));
-	char ** zhv_driverController_list = getZhvDriverControllerList();
-	gtk_entry_set_text(driverControllerEntry, zhv_driverController_list[ptZhavamConf->driverController]);
+	const char ** zhv_driverController_list = getZhvDriverControllerList();
+	gtk_entry_set_text((GtkEntry *)driverControllerEntry, zhv_driverController_list[ptZhavamConf->driverController]);
 }
 
 /**
@@ -600,7 +602,7 @@ void gtkSetDriverControllerComboBoxText(zhavamConf_t * ptZhavamConf)
 
 	gtk_combo_box_text_remove_all((GtkComboBoxText *)driverControllerComboBoxText);
 
-	char ** zhv_driverController_list = getZhvDriverControllerList();
+	const char ** zhv_driverController_list = getZhvDriverControllerList();
 	for(int i = ALSA; i < LAST_CONTROLLER; ++i)
 			gtk_combo_box_text_append_text((GtkComboBoxText *)driverControllerComboBoxText, zhv_driverController_list[i]);
 	gtkSetDefaultDriverController((GtkComboBoxText *)driverControllerComboBoxText, ptZhavamConf);
@@ -634,9 +636,9 @@ driverController_t driverControllerDecode(const char * driverControllerStr)
  * @param sndPcmFormat: The enumerator for the PA Sample Format
  * @return the PA_SAMPLE name or "An invalid value" if not found
  */
-char * driverControllerString(driverController_t driverController)
+const char * driverControllerString(driverController_t driverController)
 {
-	char ** zhv_driverController_list = getZhvDriverControllerList();
+	const char ** zhv_driverController_list = getZhvDriverControllerList();
 
 	if (driverController >= ALSA && driverController < LAST_CONTROLLER) return zhv_driverController_list[driverController];
 	else return zhv_driverController_list[LAST_CONTROLLER];
@@ -648,7 +650,7 @@ char * driverControllerString(driverController_t driverController)
  */
 void printZhavamConf(zhavamConf_t * ptZhavamConf)
 {
-	puts("------------------- Zhavam Conf -------------------\n");
+	puts("------------------- Zhavam Conf -------------------");
 	printf("appName:%s\n", ptZhavamConf->appName);
 	printf("driverController:(%d) %s\n", ptZhavamConf->driverController, driverControllerString(ptZhavamConf->driverController));
 	puts("	--- acrCloud ---");
@@ -668,5 +670,215 @@ void printZhavamConf(zhavamConf_t * ptZhavamConf)
 	printf("pulse.rate:%d\n", ptZhavamConf->pulse.rate);
 	printf("pulse.pa_sample_format:(%d) %s\n", ptZhavamConf->pulse.pa_sample_format, pulsePaSampleFormatString(ptZhavamConf->pulse.pa_sample_format));
 	puts("---------------------------------------------------\n");
+}
+
+
+/**
+ * Creates the file zhavam.conf from scratch
+ * first set up the default values for acrcloud and alsa
+ * second writes these values in a new zhavam.conf file
+ * @param zhvHome
+ * @param ptZhavamConf
+ */
+void createZhavamConf(char * zhvHome, zhavamConf_t * ptZhavamConf)
+{
+	WARNING("%s", WARNING04);
+	gtkWarning("%s", WARNING04);
+	setupZhavamConfigStruct(ptZhavamConf);
+	writeZhavamConfig(zhvHome, ptZhavamConf);
+}
+
+/**
+ * Loads the configuration from zhavam.conf
+ * @param zhvHome
+ * @param ptZhavamConf
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int configLoad(char * zhvHome, zhavamConf_t * ptZhavamConf)
+{
+	config_t cfg;
+
+	config_init(&cfg);
+
+	/* Read the file. If there is an error, report it and exit. */
+	if (!config_read_file(&cfg, zhvHome))
+	{
+		sprintf(STATUS_MESSAGE, "%s file:%s line:%d error:%s", WARNING02, config_error_file(&cfg),
+				config_error_line(&cfg), config_error_text(&cfg));
+		config_destroy(&cfg);
+		ERROR("%s", STATUS_MESSAGE);
+		return EXIT_FAILURE;
+	}
+
+	const char * str;
+	config_lookup_string(&cfg, "acrcloud.access_key", &(ptZhavamConf->acrcloud.access_key_));
+	config_lookup_string(&cfg, "acrcloud.access_secret", &(ptZhavamConf->acrcloud.access_secret_));
+	config_lookup_string(&cfg, "acrcloud.host", &(ptZhavamConf->acrcloud.host_));
+	config_lookup_string(&cfg, "acrcloud.rec_type", &str);
+	ptZhavamConf->acrcloud.rec_type_ = recTypeDecode(str);
+	config_lookup_int(&cfg, "acrcloud.timeout_ms", &(ptZhavamConf->acrcloud.timeout_ms_));
+
+	config_lookup_string(&cfg, "driverController", &str);
+	ptZhavamConf->driverController = driverControllerDecode(str);
+
+	config_lookup_string(&cfg, "alsa.snd_pcm_format", (const char **)&str);
+	ptZhavamConf->alsa.snd_pcm_format = alsaSndPcmFormatDecode(str);
+	config_lookup_string(&cfg, "alsa.pcm_dev", (const char **)(&(ptZhavamConf->alsa.pcm_dev)));
+	config_lookup_int(&cfg, "alsa.pcm_buffer_frames", (int *)&(ptZhavamConf->alsa.pcm_buffer_frames));
+	config_lookup_int(&cfg, "alsa.rate", (int *)&(ptZhavamConf->alsa.rate));
+
+	config_lookup_string(&cfg, "pulse.pa_sample_format", (const char **)&str);
+	ptZhavamConf->pulse.pa_sample_format = pulsePaSampleFormatDecode(str);
+	config_lookup_string(&cfg, "pulse.pcm_dev", (const char **)(&(ptZhavamConf->pulse.pcm_dev)));
+	config_lookup_int(&cfg, "pulse.pcm_buffer_frames", (int *)&(ptZhavamConf->pulse.pcm_buffer_frames));
+	config_lookup_int(&cfg, "pulse.rate", (int *)&(ptZhavamConf->pulse.rate));
+
+	return EXIT_SUCCESS;
+}
+
+/**
+ * Initializes Zhavam ConfigStruct
+ * @param ptZhavamConf
+ */
+void setZhavamConfigStruct(zhavamConf_t * ptZhavamConf)
+{
+	ptZhavamConf->acrcloud.access_key_ = NULL;
+	ptZhavamConf->acrcloud.access_secret_= NULL;
+	ptZhavamConf->acrcloud.host_ = NULL;
+	ptZhavamConf->acrcloud.rec_type_ = -1;
+	ptZhavamConf->acrcloud.timeout_ms_ = -1;
+
+	ptZhavamConf->driverController = -1;
+
+	ptZhavamConf->alsa.pcm_buffer_frames = 0;
+	ptZhavamConf->alsa.pcm_dev = NULL;
+	ptZhavamConf->alsa.rate = 0;
+	ptZhavamConf->alsa.snd_pcm_format = -1;
+
+	ptZhavamConf->pulse.pcm_buffer_frames = 0;
+	ptZhavamConf->pulse.pcm_dev = NULL;
+	ptZhavamConf->pulse.rate = 0;
+	ptZhavamConf->pulse.pa_sample_format = -1;
+}
+
+/**
+ * Sets up Zhavam ConfigStruct to the default values
+ * @param ptZhavamConf
+ */
+void setupZhavamConfigStruct(zhavamConf_t * ptZhavamConf)
+{
+	ptZhavamConf->acrcloud.access_key_ = NULL;
+	ptZhavamConf->acrcloud.access_secret_= NULL;
+	ptZhavamConf->acrcloud.host_ = NULL;
+	ptZhavamConf->acrcloud.rec_type_ = acr_opt_rec_audio;
+	ptZhavamConf->acrcloud.timeout_ms_ = 5000;
+
+	ptZhavamConf->driverController = PULSE;
+
+	ptZhavamConf->alsa.pcm_buffer_frames = 153600;
+	ptZhavamConf->alsa.pcm_dev = NULL;
+	ptZhavamConf->alsa.rate = 44100;
+	ptZhavamConf->alsa.snd_pcm_format = SND_PCM_FORMAT_S16;
+
+	ptZhavamConf->pulse.pcm_buffer_frames = 153600;
+	ptZhavamConf->pulse.pcm_dev = NULL;
+	ptZhavamConf->pulse.rate = 44100;
+	ptZhavamConf->pulse.pa_sample_format = IND_PA_SAMPLE_S16LE;
+}
+
+/**
+ * Writes Zhavam Configuration kept in ptZhavamConf to zhavam.conf
+ * @param zhavamHome
+ * @param ptZhavamConf
+ */
+void writeZhavamConfig(char * zhavamHome, zhavamConf_t * ptZhavamConf)
+{
+	FILE * fp;
+
+	if((fp = fopen(zhavamHome, "w")))
+	{
+		fprintf(fp, "# ######################\n");
+		fprintf(fp, "#\n");
+		fprintf(fp, "# Zhavam config file\n");
+		fprintf(fp, "#\n");
+		fprintf(fp, "# ######################\n\n");
+		fprintf(fp, "# ######################\n");
+		fprintf(fp, "# acrcloud config section\n");
+		fprintf(fp, "# ######################\n");
+		fprintf(fp, "acrcloud:\n");
+		fprintf(fp, "{\n");
+		fprintf(fp, "	host = \"%s\";\n", ptZhavamConf->acrcloud.host_? ptZhavamConf->acrcloud.host_: "");
+		fprintf(fp, "	access_key = \"%s\";\n", ptZhavamConf->acrcloud.access_key_? ptZhavamConf->acrcloud.access_key_ : "");
+		fprintf(fp, "	access_secret = \"%s\";\n", ptZhavamConf->acrcloud.access_secret_ ? ptZhavamConf->acrcloud.access_secret_ : "");
+		fprintf(fp, "	timeout_ms = %d;\n", ptZhavamConf->acrcloud.timeout_ms_);
+		fprintf(fp, "	rec_type = \"%s\";\n", recTypeString(ptZhavamConf->acrcloud.rec_type_));
+		fprintf(fp, "};\n\n");
+		fprintf(fp, "# ######################\n");
+		fprintf(fp, "# driver controller config section\n");
+		fprintf(fp, "# ######################\n");
+		fprintf(fp, "driverController = \"%s\";\n\n", driverControllerString(ptZhavamConf->driverController));
+		fprintf(fp, "# ######################\n");
+		fprintf(fp, "# alsa config section\n");
+		fprintf(fp, "# ######################\n");
+		fprintf(fp, "alsa:\n");
+		fprintf(fp, "{\n");
+		fprintf(fp, "	snd_pcm_format = \"%s\";\n", alsaSndPcmFormatString(ptZhavamConf->alsa.snd_pcm_format));
+		fprintf(fp, "	rate = %d;\n", ptZhavamConf->alsa.rate);
+		fprintf(fp, "	pcm_buffer_frames = %d;\n", ptZhavamConf->alsa.pcm_buffer_frames);
+		fprintf(fp, "	pcm_dev = \"%s\";\n", ptZhavamConf->alsa.pcm_dev ? ptZhavamConf->alsa.pcm_dev : "");
+		fprintf(fp, "};\n\n");
+		fprintf(fp, "# ######################\n");
+		fprintf(fp, "# pulse config section\n");
+		fprintf(fp, "# ######################\n");
+		fprintf(fp, "pulse:\n");
+		fprintf(fp, "{\n");
+		fprintf(fp, "	pa_sample_format = \"%s\";\n", pulsePaSampleFormatString(ptZhavamConf->pulse.pa_sample_format));
+		fprintf(fp, "	rate = %d;\n", ptZhavamConf->pulse.rate);
+		fprintf(fp, "	pcm_buffer_frames = %d;\n", ptZhavamConf->pulse.pcm_buffer_frames);
+		fprintf(fp, "	pcm_dev = \"%s\";\n", ptZhavamConf->pulse.pcm_dev ? ptZhavamConf->pulse.pcm_dev : "");
+		fprintf(fp, "};\n");
+
+		fclose(fp);
+	}
+	else {
+		WARNING(WARNING05, zhavamHome);
+		if (getGtkBuilder()) gtkWarning(WARNING05, zhavamHome);
+	}
+}
+
+/**
+ * Try to read the config file zhavam.conf
+ * If this file doesn't exist calls createZhavamConf with the full path to create the file
+ * If the file exists loads its content
+ * @param ptZhavamConf
+ * @parm zhavamConf_t * ptZhavamConf
+ */
+void zhavamConfig(zhavamConf_t * ptZhavamConf)
+{
+	struct stat s;
+	char zhvHome[2*ZHVHOMELEN];
+	char home[ZHVHOMELEN];
+
+	setZhavamConfigStruct(ptZhavamConf);
+
+	sprintf(home, "%s", getenv("HOME"));
+	sprintf(zhvHome, "%s/%s", home, ZHVDIR);
+	if (stat(zhvHome, &s) == -1) {
+		statErrorMngr(errno);
+	    if (errno == ENOENT) // does not exist
+	    {
+	    	if (mkdir(zhvHome, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) == -1) mkdirErrorMngr(errno);
+	    	sprintf(zhvHome, "%s/%s", zhvHome, ZHVFILENAME);
+	    	createZhavamConf(zhvHome, ptZhavamConf);
+	    }
+	} else if (!S_ISDIR(s.st_mode)) ERROR(ERROR01, zhvHome); // exists but it is not a dir
+
+	sprintf(zhvHome, "%s/%s", zhvHome, ZHVFILENAME);
+	if (stat(zhvHome, &s) == -1) {
+		statErrorMngr(errno);
+	    if (errno == ENOENT) // does not exist
+	    	return createZhavamConf(zhvHome, ptZhavamConf);
+	} else if (!S_ISREG(s.st_mode)) ERROR(ERROR02, zhvHome); // exists but it is not a REGULAR file
+	configLoad(zhvHome, ptZhavamConf);
 }
 

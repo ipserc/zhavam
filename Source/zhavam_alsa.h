@@ -54,9 +54,9 @@ typedef struct
  * prototypes
  */
 /* zhavam_alsa.c */
-char **getZhvAlsaSndPcmFormatList(void);
+const char **getZhvAlsaSndPcmFormatList(void);
 snd_pcm_format_t alsaSndPcmFormatDecode(const char *strSndPcmFormat);
-char *alsaSndPcmFormatString(snd_pcm_format_t sndPcmFormat);
+const char *alsaSndPcmFormatString(snd_pcm_format_t sndPcmFormat);
 int openDevice(char *devID, snd_pcm_t **ptr_capture_handle, snd_pcm_hw_params_t **ptr_hw_params);
 int setupDevice(snd_pcm_t *capture_handle, snd_pcm_hw_params_t *hw_params, snd_pcm_format_t format, unsigned int *rate);
 int setupAudioDevice(char *devID, snd_pcm_t *capture_handle, snd_pcm_hw_params_t *hw_params, snd_pcm_format_t format, unsigned int *rate);

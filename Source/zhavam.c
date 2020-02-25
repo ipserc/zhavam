@@ -1,40 +1,35 @@
 /*
  * zhavam_alsa.c
  *
- *  Created on: 6 ene. 2018
+ *  Created on: 6 ene. 2018-02 feb 2020
  *      Author: ipserc
  *
- *      ./zhavam hw:1,0
+ *      ./zhavam hw:1,0-1.4
  *      export LD_LIBRARY_PATH=/usr/local/lib/acrcloud
  *
  *      https://github.com/acrcloud/acrcloud_sdk_linux_c
  */
 
+#include <gtk/gtkx.h>
 #include <gtk/gtk.h>
 #include <errno.h>
-#include <libconfig.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
+#include <getopt.h>
+#include <ctype.h>
+#include <libgen.h>
+
 #include "zhavam.h"
 #include "zhavam_glade.h"
+#include "zhavam_config.h"
 #include "zhavam_acrcloud.h"
 #include "zhavam_alsa.h"
 #include "zhavam_pulse.h"
 #include "zhavam_devices.h"
 #include "zhavam_errtra.h"
-
-/**
- * Status messages
- */
-#define STATUS00 "loaded successfully"
-#define STATUS01 "Capturing sound from device and recognizing"
-#define STATUS02 "Ready to capture again"
-#define STATUS03 "acr cloud is not set. Unable to connect"
-#define STATUS04 "Device driver controller is not available"
 
 /**
  * Global Variables GV_
@@ -44,15 +39,15 @@
 //zhavamConf_t GV_zhavamConf;
 
 /**
- * Static "private method" to create or get the GtkBuilder * gtkbuilder "member" variable. DO NOT CALL IT DIRECTLY
- * @param method: Selector for (0) create a new instance or returning the one created
+ * Static "private method" to set or get the GtkBuilder * gtkbuilder static variable. DO NOT CALL IT DIRECTLY
+ * @param method: Selector for (0) set or get the GtkBuilder
  * @return static GtkBuilder * gtkbuilder
  */
-static GtkBuilder * gtkbuilder(int method)
+/* private */static GtkBuilder * gtkbuilder(int method)
 {
-	static GtkBuilder * gtkbuilder;
+	static GtkBuilder * gtkbuilder = NULL;
 
-	if (method == 0)	//NEW
+	if (method == 0)	//SET
 	{
 		/*
 		 * To load the GUI from the file ../config/zhavam.glade use this
@@ -67,16 +62,16 @@ static GtkBuilder * gtkbuilder(int method)
 }
 
 /**
- * "Instantiates" a new GtkBuilder * gtkbuilder pointer. Use it to create it
+ * Sets GtkBuilder * gtkbuilder pointer. Use it to create it
  * @return static GtkBuilder * gtkbuilder
  */
-GtkBuilder * newGtkBuilder(void)
+GtkBuilder * setGtkBuilder(void)
 {
 	return gtkbuilder(0);
 }
 
 /**
- * Returns the GtkBuilder * gtkbuilder "member" variable
+ * Returns the GtkBuilder * gtkbuilder static variable
  * @return static GtkBuilder * gtkbuilder
  */
 GtkBuilder * getGtkBuilder(void)
@@ -98,20 +93,33 @@ int doZhavam(char * devID, acr_data_t * acrResponse)
 
 	if (!acrCloudSet(zhavamConf))
 	{
-		WARNING("%s", WARNING06);
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", WARNING06);
-		gtkSetStatusZhvLabel(STATUS03);
+		if (getGtkBuilder())
+		{
+			gtkSetCursor(NORMAL_CURSOR);
+			gtkWarning("%s", WARNING06);
+			gtkSetStatusZhvLabel(STATUS03);
+		}
+		else
+		{
+			WARNING("%s", WARNING06);
+			TRACE("%s", STATUS03);
+		}
 		return EXIT_FAILURE;
 	}
-	gtkZhavamClearTrackInfoTextView(NULL, NULL);
-	gtkSetStatusZhvLabel(STATUS01);
-	gtkSetCursor(GDK_WATCH);
+	else
+	{
+		if (getGtkBuilder())
+		{
+			gtkZhavamClearTrackInfoTextView(NULL, NULL);
+			gtkSetStatusZhvLabel(STATUS01);
+			gtkSetCursor(GDK_WATCH);
+		}
+		else TRACE("%s", STATUS01);
+	}
 	switch (zhavamConf->driverController) {
 	case ALSA: {
 		snd_pcm_t * capture_handle = NULL;
 		snd_pcm_hw_params_t * hw_params = NULL;
-
 		if (openDevice(devID, &capture_handle, &hw_params) < 0) return EXIT_FAILURE;
 		if (setupAudioDevice(devID, capture_handle, hw_params, zhavamConf->alsa.snd_pcm_format, &zhavamConf->alsa.rate) < 0) return EXIT_FAILURE;
 		if (pcmPrepare(capture_handle) < 0) return EXIT_FAILURE;
@@ -127,13 +135,27 @@ int doZhavam(char * devID, acr_data_t * acrResponse)
 		break;
 	default:
 		WARNING("%s", WARNING17);
-		gtkSetCursor(NORMAL_CURSOR);
-		gtkWarning("%s", WARNING17);
-		gtkSetStatusZhvLabel(STATUS04);
+		if (!acrCloudSet(zhavamConf))
+		{
+			if (getGtkBuilder())
+			{
+				gtkSetCursor(NORMAL_CURSOR);
+				gtkWarning("%s", WARNING17);
+				gtkSetStatusZhvLabel(STATUS04);
+			}
+			TRACE("%s", STATUS04);
+		}
 		return EXIT_FAILURE;
 	}
-	gtkSetStatusZhvLabel(STATUS02);
-	gtkSetCursor(NORMAL_CURSOR);
+	if (!acrCloudSet(zhavamConf))
+	{
+		if (getGtkBuilder())
+		{
+			gtkSetStatusZhvLabel(STATUS02);
+			gtkSetCursor(NORMAL_CURSOR);
+		}
+		TRACE("%s", STATUS02);
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -149,43 +171,44 @@ char * acrDataToText(char * trackInfoText, acr_data_t * acrResponse)
 
 	if (acrResponse->status.code[0] != '0')
 	{
-		ptr += sprintf(ptr, "status msg:%s\n", acrResponse->status.msg);
-		ptr += sprintf(ptr, "status code:%s\n", acrResponse->status.code);
-		ptr += sprintf(ptr, "status version:%s\n", acrResponse->status.version);
+		ptr += sprintf(ptr, "status msg: %s\n", acrResponse->status.msg);
+		ptr += sprintf(ptr, "status code: %s\n", acrResponse->status.code);
+		ptr += sprintf(ptr, "status version: %s\n", acrResponse->status.version);
 	}
 	else
 	{
-		ptr += sprintf(ptr, "Title:%s\n", acrResponse->metadata.music.title);
-		ptr += sprintf(ptr, "Artist:%s", acrResponse->metadata.music.artists[0]);
+		ptr += sprintf(ptr, "Title: %s\n", acrResponse->metadata.music.title);
+		ptr += sprintf(ptr, "Artist: %s", acrResponse->metadata.music.artists[0]);
 		for(int i = 1; i < MAX_ITEMS; ++i) {
 			if (!acrResponse->metadata.music.artists[i][0]) break;
 			ptr += sprintf(ptr, ", %s", acrResponse->metadata.music.artists[i]);
 		}
 		ptr += sprintf(ptr, "\n");
-		ptr += sprintf(ptr, "Album:%s\n", acrResponse->metadata.music.album);
-		ptr += sprintf(ptr, "Genre:%s", acrResponse->metadata.music.genres[0]);
+		ptr += sprintf(ptr, "Album: %s\n", acrResponse->metadata.music.album);
+		ptr += sprintf(ptr, "Genre: %s", acrResponse->metadata.music.genres[0]);
 		for(int i = 1; i < MAX_ITEMS; ++i) {
 			if (!acrResponse->metadata.music.genres[i][0]) break;
 			ptr += sprintf(ptr, ", %s", acrResponse->metadata.music.genres[i]);
 		}
 		ptr += sprintf(ptr, "\n");
-		ptr += sprintf(ptr, "Label:%s\n", acrResponse->metadata.music.label);
-		ptr += sprintf(ptr, "Release date:%s\n", acrResponse->metadata.music.release_date);
-		ptr += sprintf(ptr, "Deezer album id:%s\n", acrResponse->metadata.music.external_metadata.deezer.album_id);
-		ptr += sprintf(ptr, "Deezer track id:%s\n", acrResponse->metadata.music.external_metadata.deezer.track_id);
-		ptr += sprintf(ptr, "Spotify album id:%s\n", acrResponse->metadata.music.external_metadata.spotify.album_id);
-		ptr += sprintf(ptr, "Spotify track id:%s\n", acrResponse->metadata.music.external_metadata.spotify.track_id);
-		ptr += sprintf(ptr, "Youtube video id:%s\n", acrResponse->metadata.music.external_metadata.youtube_vid);
-		//printf("External ids:%s\n", acrResponse->metadata.music[m].external_ids);
-		//printf("Play offset_ms:%s\n", acrResponse->metadata.music[m].play_offset_ms);
-		//printf("External metadata:%s\n", acrResponse->metadata.music[m].external_metadata);
-		//printf("Duration_ms:%s\n", acrResponse->metadata.music[m].duration_ms);
-		//printf("Acrid:%s\n", acrResponse->metadata.music[m].acrid);
-		//printf("Result from:%s\n", acrResponse->metadata.music[m].result_from);
-		//printf("Score:%s\n", acrResponse->metadata.music[m].score);
-		//printf("Timestamp utc:%s\n", acrResponse->metadata.timestamp_utc);
-		//printf("Cost time:%s\n", acrResponse->cost_time);
-		//printf("Result type:%s\n", acrResponse->result_type);
+
+		ptr += sprintf(ptr, "Label: %s\n", acrResponse->metadata.music.label);
+		ptr += sprintf(ptr, "Release date: %s\n", acrResponse->metadata.music.release_date);
+		ptr += sprintf(ptr, "Deezer album id: %s\n", acrResponse->metadata.music.external_metadata.deezer.album_id);
+		ptr += sprintf(ptr, "Deezer track id: %s\n", acrResponse->metadata.music.external_metadata.deezer.track_id);
+		ptr += sprintf(ptr, "Spotify album id: %s\n", acrResponse->metadata.music.external_metadata.spotify.album_id);
+		ptr += sprintf(ptr, "Spotify track id: %s\n", acrResponse->metadata.music.external_metadata.spotify.track_id);
+		ptr += sprintf(ptr, "Youtube video id: %s\n", acrResponse->metadata.music.external_metadata.youtube_vid);
+		//printf("External ids: %s\n", acrResponse->metadata.music[m].external_ids);
+		//printf("Play offset_ms: %s\n", acrResponse->metadata.music[m].play_offset_ms);
+		//printf("External metadata: %s\n", acrResponse->metadata.music[m].external_metadata);
+		//printf("Duration_ms: %s\n", acrResponse->metadata.music[m].duration_ms);
+		//printf("Acrid: %s\n", acrResponse->metadata.music[m].acrid);
+		//printf("Result from: %s\n", acrResponse->metadata.music[m].result_from);
+		//printf("Score: %s\n", acrResponse->metadata.music[m].score);
+		//printf("Timestamp utc: %s\n", acrResponse->metadata.timestamp_utc);
+		//printf("Cost time: %s\n", acrResponse->cost_time);
+		//printf("Result type: %s\n", acrResponse->result_type);
 	}
 	return trackInfoText;
 }
@@ -212,7 +235,7 @@ void gtkDeleteTextBuffer(GtkTextBuffer * textbuf)
 void gtkRecordToggleButtonClickedCallback(GtkToggleButton * recordToggleButton, gpointer user_data)
 {
 	acr_data_t acrResponse;
-	char trackInfoText[5000];
+	char trackInfoText[ZHVTRACKINFOTEXTLEN];
 	GtkTextBuffer * trackInfoTextBuffer = (GtkTextBuffer*)gtk_builder_get_object(getGtkBuilder(), "trackInfoTextBuffer");
 
 	gtkDeleteTextBuffer(trackInfoTextBuffer);
@@ -233,7 +256,6 @@ char * gtkGetDevID(void)
 {
 	zhavamConf_t * zhavamConf = getZhavamConf();
 	GtkComboBoxText * devicesComboBoxText = (GtkComboBoxText*)GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "devicesComboBoxText"));
-	//sprintf(zhavamConf->alsa.pcm_dev, "%s", gtk_combo_box_get_active_id((GtkComboBox *)devicesComboBoxText));
 	sprintf(zhavamConf->alsa.pcm_dev, "%s", gtk_combo_box_get_active_id((GtkComboBox *)devicesComboBoxText));
 	return zhavamConf->alsa.pcm_dev;
 }
@@ -292,15 +314,18 @@ void gtkSetDefaultDevice(GtkComboBoxText * devicesComboBoxText, zhavamConf_t * p
 gboolean gtkLoadDevicesCombo(list_t * soundDevList, zhavamConf_t * ptZhavamConf)
 {
 	char devComboTextLine[2*LONG_LEN+4] = "";
+	char devComboTextLineFormat[10];
 
 	GtkComboBoxText * devicesComboBoxText = (GtkComboBoxText*)GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "devicesComboBoxText"));
 	gtk_combo_box_text_remove_all(devicesComboBoxText);
 
 	if (soundDevList->head == NULL) return FALSE; // Empty list
 
+	sprintf(devComboTextLineFormat, "%s%is", "%.", DEV_COMBO_TEXT_LINE_LEN);
+
 	for(node_t * ptr = soundDevList->head; ptr; ptr = ptr->next)
 	{
-		sprintf(devComboTextLine, "%s", ((soundDevice_t*)(ptr->item))->description);
+		sprintf(devComboTextLine, devComboTextLineFormat, ((soundDevice_t*)(ptr->item))->description);
 		gtk_combo_box_text_append((GtkComboBoxText*)devicesComboBoxText, ((soundDevice_t*)(ptr->item))->name, devComboTextLine);
 	}
 	gtk_combo_box_set_active((GtkComboBox *)(GtkComboBoxText*)devicesComboBoxText, 0);
@@ -401,10 +426,13 @@ void gtkInitDevicesComboBoxText(zhavamConf_t * ptZhavamConf)
 		soundDevList = pulseGetRecDevicesList(soundDevList);
 		break;
 	default:
+		sprintf(statusActivateMsg, "%s", WARNING17);
+		gtkSetStatusZhvLabel(statusActivateMsg);
+		gtkWarning("%s", WARNING17);
 		break;
 	}
 
-	// Load the capture sound devices in the devices combobox
+	// Load the capture sound devices in the devices combo box
 	if (!gtkLoadDevicesCombo(soundDevList, ptZhavamConf))
 	{
 		gtkSetSensitiveRecordToggleButton(FALSE);
@@ -585,232 +613,219 @@ void gtkSignalsConnect(void)
 }
 
 /**
- * Creates the file zhavam.conf from scratch
- * first set up the default values for acrcloud and alsa
- * second writes these values in a new zhavam.conf file
- * @param zhvHome
- * @param ptZhavamConf
+ * Prints the usage on screen
  */
-void createZhavamConf(char * zhvHome, zhavamConf_t * ptZhavamConf)
+void zhavamHelp(void)
 {
-	/*
-	if (ptZhavamConf->alsa.pcm_dev)
+	puts("Usage: zhavam [OPTION]... ");
+	puts("Music recognition application for Linux.\n");
+	puts("Abstract");
+	puts("zhavam connects with Alsa or Pulse Drivers to record a small part of");
+	puts("the song and then sends it to ACRCloud. ACRCloud responds with the");
+	puts("song data in a Json message. The data recovered from the service");
+	puts("includes the title of the song, the artist, the album, the genre of");
+	puts("the year, etc.");
+	puts("zhavam analyzes this message and presents the most relevant information");
+	puts("in the Track Information Text View.\n");
+	puts("Options");
+	puts("Do not use any option to display the graphical interface.");
+	puts("	-g, --nogui	no GUI, command line mode.");
+	puts("	-l, --loop	loop mode (forces the no GUI mode)");
+	puts("	-h, --help	shows this help.");
+	puts("	-c, --config	dumps the configuration on the screen.");
+	puts("	-b, --buffer	writes pcm buffer to a file (forces the no GUI mode)");
+	puts("	-V, --version	prints zhavam version.");
+	puts("zhavam on Github at https://github.com/ipserc/zhavam");
+	puts("You can report any bug at zhavam's Github homepage");
+}
+
+/**
+ * options
+ * --nogui		-g	no GUI, command line mode
+ * --loop		-l	loop mode. Press ctrl-c to quit
+ * --help		-h	help
+ * --config		-c	dumps the configuration on the screen.
+ * --buffer		-b	writes pcm buffer (forces the no GUI mode)
+ * --version	-V	prints zhavam version.
+ */
+/**
+ * Static "private method" to create or get the zhvParams_t * zhvParams static variable. DO NOT CALL IT DIRECTLY
+ * @param method: Selector for (0) create a new instance or returning the one created
+ * @return A pointer to static zhvParams_t zhvParams
+ */
+/* private */static zhvParams_t * zhvParams(int method)
+{
+	static zhvParams_t zhvParams;
+
+	if (method == 0)	//SET
 	{
-		int index = 0;
-		char * comboText;
-		do
+		zhvParams.nogui 	= false;
+		zhvParams.loop 		= false;
+		zhvParams.help 		= false;
+		zhvParams.config	= false;
+		zhvParams.buffer	= false;
+		zhvParams.version	= false;
+	}
+	return (zhvParams_t *)&zhvParams;
+}
+
+/**
+ * Sets zhvParams_t zhvParams pointer. Use it to create it
+ * @return A pointer to static zhvParams_t zhvParams
+ */
+zhvParams_t * setZhvParams(void)
+{
+	return zhvParams(0);
+}
+
+/**
+ * Returns a pointer to static zhvParams_t zhvParams static variable
+ * @return A pointer to static zhvParams_t zhvParams
+ */
+zhvParams_t * getZhvParams(void)
+{
+	return zhvParams(1);
+}
+
+/**
+ * Reads the params passed from the command line
+ */
+ zhvParams_t * readZhvParams(int argc, char *argv[])
+{
+    static struct option long_options[] =
+      {
+        {"nogui",	no_argument,	0,	'g'},
+		{"loop",	no_argument,	0,	'l'},
+        {"help",  	no_argument,	0,	'h'},
+        {"config",	no_argument,	0,	'c'},
+        {"buffer",	no_argument,	0,	'b'},
+        {"version",	no_argument,	0,	'V'},
+        {0, 0, 0, 0}
+      };
+    int c, option_index = 0;
+    zhvParams_t * zhvParams = setZhvParams();
+    while ((c = getopt_long (argc, argv, "glhcbV", long_options, &option_index)) != -1)
+    {
+ 		switch (c)
 		{
-			gtk_combo_box_set_active((GtkComboBox *)devicesComboBoxText, index++);
-			comboText = gtk_combo_box_text_get_active_text((GtkComboBoxText *)devicesComboBoxText);
-			if (comboText)
+		  case 'h':
+			  zhvParams->help = true;
+			  break;
+		  case 'c':
+			  zhvParams->config = true;
+			  break;
+		  case 'l':
+			  zhvParams->loop = true;
+			  break;
+		  case 'V':
+		  	  zhvParams->version = true;
+		  	  break;
+		  case 'b':
+			  zhvParams->buffer = true; // @suppress("No break at end of case")
+			  /* no break */
+		  case 'g':
+			  zhvParams->nogui = true;
+			  break;
+		}
+    }
+    return zhvParams;
+}
+
+ /**
+  * Gest the Sound Device controller name to connect with the Linux sound system via API
+  * @param The string to store the device name
+  * @return Empty device name if the device is not recognized, otherwise the device name
+  */
+ char * getDevControllerName(char * devName)
+ {
+ 	list_t * soundDevList = listNew(&soundDevList);
+ 	char * pcmDevice;
+
+ 	*devName = '\0';
+ 	switch (getZhavamConf()->driverController) {
+ 	case ALSA:
+ 		soundDevList = alsaGetPCMRecDevicesList(soundDevList); //getPCMRecDevices(pcmRecDevList);
+ 		pcmDevice = getZhavamConf()->alsa.pcm_dev;
+ 		break;
+ 	case PULSE:
+ 		soundDevList = pulseGetRecDevicesList(soundDevList);
+ 		pcmDevice = getZhavamConf()->pulse.pcm_dev;
+ 		break;
+ 	default:
+ 		WARNING("%s", WARNING17);
+ 		return devName;
+ 	}
+
+ 	for(node_t * ptr = soundDevList->head; ptr; ptr = ptr->next)
+ 	{
+ 		if (!strcmp(((soundDevice_t*)(ptr->item))->description, pcmDevice))
+ 		{
+ 		sprintf(devName, "%s", ((soundDevice_t*)(ptr->item))->name);
+ 		return devName;
+ 		}
+ 		//gtk_combo_box_text_append((GtkComboBoxText*)devicesComboBoxText, ((soundDevice_t*)(ptr->item))->name, devComboTextLine);
+ 	}
+
+ 	if (soundDevList) listDestroy(soundDevList, (void *)NULL);
+ 	return devName;
+ }
+
+ /**
+  * Runs zhavam in Console Line Interface mode
+  * @return The result of doing music recognition
+  */
+ int zhavamCCI(void)
+ {
+		acr_data_t acrResponse;
+		int retVal;
+		char car;
+		char trackInfoText[ZHVTRACKINFOTEXTLEN];
+
+		if (getZhvParams()->loop) puts("zhavam is working in loop mode. Press Ctrl-C to quit");
+		char devID[LONG_LEN+1];
+		if (!getDevControllerName(devID))
+		{
+			ERROR("%s", ERROR17);
+		}
+
+		TRACE("devID:%s", devID);
+
+		do {
+			retVal = doZhavam(devID, &acrResponse);
+			puts("---- TRACK INFO ----");
+			puts(acrDataToText(trackInfoText, &acrResponse));
+			puts("--------------------");
+			if (getZhvParams()->loop)
 			{
-				if (strstr(comboText, ptZhavamConf->alsa.pcm_dev)) break;
+				puts("Press Enter to scan again, 'Q' to quit.");
+				car = getchar();
+				//scanf("%c", &car);
+				if (toupper(car) == 'Q') getZhvParams()->loop = false;
 			}
-		} while(comboText);
-		if (!comboText) gtk_combo_box_set_active((GtkComboBox *)devicesComboBoxText, 0);
-		else g_free(comboText);
+		} while(getZhvParams()->loop);
+		return retVal;
+ }
 
-	}
-	*/
-	WARNING("%s", WARNING04);
-	gtkWarning("%s", WARNING04);
-	setupZhavamConfigStruct(ptZhavamConf);
-	writeZhavamConfig(zhvHome, ptZhavamConf);
-}
-
-/**
- * Loads the configuration from zhavam.conf
- * @param zhvHome
- * @param ptZhavamConf
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-int configLoad(char * zhvHome, zhavamConf_t * ptZhavamConf)
-{
-	config_t cfg;
-
-	config_init(&cfg);
-
-	/* Read the file. If there is an error, report it and exit. */
-	if (!config_read_file(&cfg, zhvHome))
-	{
-		sprintf(STATUS_MESSAGE, "%s file:%s line:%d error:%s", WARNING02, config_error_file(&cfg),
-				config_error_line(&cfg), config_error_text(&cfg));
-		config_destroy(&cfg);
-		ERROR("%s", STATUS_MESSAGE);
-		return EXIT_FAILURE;
-	}
-
-	const char * str;
-	config_lookup_string(&cfg, "acrcloud.access_key", &(ptZhavamConf->acrcloud.access_key_));
-	config_lookup_string(&cfg, "acrcloud.access_secret", &(ptZhavamConf->acrcloud.access_secret_));
-	config_lookup_string(&cfg, "acrcloud.host", &(ptZhavamConf->acrcloud.host_));
-	config_lookup_string(&cfg, "acrcloud.rec_type", &str);
-	ptZhavamConf->acrcloud.rec_type_ = recTypeDecode(str);
-	config_lookup_int(&cfg, "acrcloud.timeout_ms", &(ptZhavamConf->acrcloud.timeout_ms_));
-
-	config_lookup_string(&cfg, "driverController", &str);
-	ptZhavamConf->driverController = driverControllerDecode(str);
-
-	config_lookup_string(&cfg, "alsa.snd_pcm_format", (const char **)&str);
-	ptZhavamConf->alsa.snd_pcm_format = alsaSndPcmFormatDecode(str);
-	config_lookup_string(&cfg, "alsa.pcm_dev", (const char **)(&(ptZhavamConf->alsa.pcm_dev)));
-	config_lookup_int(&cfg, "alsa.pcm_buffer_frames", (int *)&(ptZhavamConf->alsa.pcm_buffer_frames));
-	config_lookup_int(&cfg, "alsa.rate", (int *)&(ptZhavamConf->alsa.rate));
-
-	config_lookup_string(&cfg, "pulse.pa_sample_format", (const char **)&str);
-	ptZhavamConf->pulse.pa_sample_format = pulsePaSampleFormatDecode(str);
-	config_lookup_string(&cfg, "pulse.pcm_dev", (const char **)(&(ptZhavamConf->pulse.pcm_dev)));
-	config_lookup_int(&cfg, "pulse.pcm_buffer_frames", (int *)&(ptZhavamConf->pulse.pcm_buffer_frames));
-	config_lookup_int(&cfg, "pulse.rate", (int *)&(ptZhavamConf->pulse.rate));
-
-	return EXIT_SUCCESS;
-}
-
-/**
- * Initializes Zhavam ConfigStruct
- * @param ptZhavamConf
- */
-void initZhavamConfigStruct(zhavamConf_t * ptZhavamConf)
-{
-	ptZhavamConf->acrcloud.access_key_ = NULL;
-	ptZhavamConf->acrcloud.access_secret_= NULL;
-	ptZhavamConf->acrcloud.host_ = NULL;
-	ptZhavamConf->acrcloud.rec_type_ = -1;
-	ptZhavamConf->acrcloud.timeout_ms_ = -1;
-
-	ptZhavamConf->driverController = -1;
-
-	ptZhavamConf->alsa.pcm_buffer_frames = 0;
-	ptZhavamConf->alsa.pcm_dev = NULL;
-	ptZhavamConf->alsa.rate = 0;
-	ptZhavamConf->alsa.snd_pcm_format = -1;
-
-	ptZhavamConf->pulse.pcm_buffer_frames = 0;
-	ptZhavamConf->pulse.pcm_dev = NULL;
-	ptZhavamConf->pulse.rate = 0;
-	ptZhavamConf->pulse.pa_sample_format = -1;
-}
-
-/**
- * Sets up Zhavam ConfigStruct to the default values
- * @param ptZhavamConf
- */
-void setupZhavamConfigStruct(zhavamConf_t * ptZhavamConf)
-{
-	ptZhavamConf->acrcloud.access_key_ = NULL;
-	ptZhavamConf->acrcloud.access_secret_= NULL;
-	ptZhavamConf->acrcloud.host_ = NULL;
-	ptZhavamConf->acrcloud.rec_type_ = acr_opt_rec_audio;
-	ptZhavamConf->acrcloud.timeout_ms_ = 5000;
-
-	ptZhavamConf->driverController = PULSE;
-
-	ptZhavamConf->alsa.pcm_buffer_frames = 153600;
-	ptZhavamConf->alsa.pcm_dev = NULL;
-	ptZhavamConf->alsa.rate = 44100;
-	ptZhavamConf->alsa.snd_pcm_format = SND_PCM_FORMAT_S16;
-
-	ptZhavamConf->pulse.pcm_buffer_frames = 153600;
-	ptZhavamConf->pulse.pcm_dev = NULL;
-	ptZhavamConf->pulse.rate = 44100;
-	ptZhavamConf->pulse.pa_sample_format = IND_PA_SAMPLE_S16LE;
-}
-
-/**
- * Writes Zhavam Configuration kept in ptZhavamConf to zhavam.conf
- * @param zhavamHome
- * @param ptZhavamConf
- */
-void writeZhavamConfig(char * zhavamHome, zhavamConf_t * ptZhavamConf)
-{
-	FILE * fp;
-
-	if((fp = fopen(zhavamHome, "w")))
-	{
-		fprintf(fp, "# ######################\n");
-		fprintf(fp, "#\n");
-		fprintf(fp, "# Zhavam config file\n");
-		fprintf(fp, "#\n");
-		fprintf(fp, "# ######################\n\n");
-		fprintf(fp, "# ######################\n");
-		fprintf(fp, "# acrcloud config section\n");
-		fprintf(fp, "# ######################\n");
-		fprintf(fp, "acrcloud:\n");
-		fprintf(fp, "{\n");
-		fprintf(fp, "	host = \"%s\";\n", ptZhavamConf->acrcloud.host_? ptZhavamConf->acrcloud.host_: "");
-		fprintf(fp, "	access_key = \"%s\";\n", ptZhavamConf->acrcloud.access_key_? ptZhavamConf->acrcloud.access_key_ : "");
-		fprintf(fp, "	access_secret = \"%s\";\n", ptZhavamConf->acrcloud.access_secret_ ? ptZhavamConf->acrcloud.access_secret_ : "");
-		fprintf(fp, "	timeout_ms = %d;\n", ptZhavamConf->acrcloud.timeout_ms_);
-		fprintf(fp, "	rec_type = \"%s\";\n", recTypeString(ptZhavamConf->acrcloud.rec_type_));
-		fprintf(fp, "};\n\n");
-		fprintf(fp, "# ######################\n");
-		fprintf(fp, "# driver controller config section\n");
-		fprintf(fp, "# ######################\n");
-		fprintf(fp, "driverController = \"%s\";\n\n", driverControllerString(ptZhavamConf->driverController));
-		fprintf(fp, "# ######################\n");
-		fprintf(fp, "# alsa config section\n");
-		fprintf(fp, "# ######################\n");
-		fprintf(fp, "alsa:\n");
-		fprintf(fp, "{\n");
-		fprintf(fp, "	snd_pcm_format = \"%s\";\n", alsaSndPcmFormatString(ptZhavamConf->alsa.snd_pcm_format));
-		fprintf(fp, "	rate = %d;\n", ptZhavamConf->alsa.rate);
-		fprintf(fp, "	pcm_buffer_frames = %d;\n", ptZhavamConf->alsa.pcm_buffer_frames);
-		fprintf(fp, "	pcm_dev = \"%s\";\n", ptZhavamConf->alsa.pcm_dev ? ptZhavamConf->alsa.pcm_dev : "");
-		fprintf(fp, "};\n\n");
-		fprintf(fp, "# ######################\n");
-		fprintf(fp, "# pulse config section\n");
-		fprintf(fp, "# ######################\n");
-		fprintf(fp, "pulse:\n");
-		fprintf(fp, "{\n");
-		fprintf(fp, "	pa_sample_format = \"%s\";\n", pulsePaSampleFormatString(ptZhavamConf->pulse.pa_sample_format));
-		fprintf(fp, "	rate = %d;\n", ptZhavamConf->pulse.rate);
-		fprintf(fp, "	pcm_buffer_frames = %d;\n", ptZhavamConf->pulse.pcm_buffer_frames);
-		fprintf(fp, "	pcm_dev = \"%s\";\n", ptZhavamConf->pulse.pcm_dev ? ptZhavamConf->pulse.pcm_dev : "");
-		fprintf(fp, "};\n");
-
-		fclose(fp);
-	}
-	else {
-		WARNING(WARNING05, zhavamHome);
-		gtkWarning(WARNING05, zhavamHome);
-	}
-}
-
-/**
- * Try to read the config file zhavam.conf
- * If this file doesn't exist calls createZhavamConf with the full path to create the file
- * If the file exists loads its content
- * @param ptZhavamConf
- * @parm zhavamConf_t * ptZhavamConf
- */
-void zhavamConfig(zhavamConf_t * ptZhavamConf)
-{
-	struct stat s;
-	char zhvHome[2*ZHVHOMELEN];
-	char home[ZHVHOMELEN];
-
-	initZhavamConfigStruct(ptZhavamConf);
-
-	sprintf(home, "%s", getenv("HOME"));
-	sprintf(zhvHome, "%s/%s", home, ZHVDIR);
-	if (stat(zhvHome, &s) == -1) {
-		statErrorMngr(errno);
-	    if (errno == ENOENT) // does not exist
-	    {
-	    	if (mkdir(zhvHome, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) == -1) mkdirErrorMngr(errno);
-	    	sprintf(zhvHome, "%s/%s", zhvHome, ZHVFILENAME);
-	    	createZhavamConf(zhvHome, ptZhavamConf);
-	    }
-	} else if (!S_ISDIR(s.st_mode)) ERROR(ERROR01, zhvHome); // exists but it is not a dir
-
-	sprintf(zhvHome, "%s/%s", zhvHome, ZHVFILENAME);
-	if (stat(zhvHome, &s) == -1) {
-		statErrorMngr(errno);
-	    if (errno == ENOENT) // does not exist
-	    	return createZhavamConf(zhvHome, ptZhavamConf);
-	} else if (!S_ISREG(s.st_mode)) ERROR(ERROR02, zhvHome); // exists but it is not a REGULAR file
-	configLoad(zhvHome, ptZhavamConf);
-}
+ /**
+  * Runs zhavam in Graphic User interface mode
+  * @return The result of doing music recognition
+  */
+void zhavamGUI(void)
+ {
+		GtkWidget * zhavamMainWindow;
+		// initializes the GtkBuilder static var
+		setGtkBuilder();
+		// Get main window pointer from UI
+		zhavamMainWindow = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "zhavamMainWindow"));
+		gtkInitZhavam(getZhavamConf());
+		// Connect signals
+		gtkSignalsConnect();
+		gtk_builder_connect_signals(getGtkBuilder(), NULL);
+		/* Show window. All other widgets are automatically shown by GtkBuilder */
+		gtk_widget_show(zhavamMainWindow);
+		gtkSetCursor(NORMAL_CURSOR);
+		gtk_main();
+ }
 
 /**
  * main function
@@ -819,51 +834,47 @@ void zhavamConfig(zhavamConf_t * ptZhavamConf)
  */
 int main(int argc, char * argv[])
 {
-	zhavamConf_t * ptZhavamConf = newZhavamConf();
+	zhavamConf_t * ptZhavamConf = setZhavamConf();
 
-	/*
+	zhavamConfig(ptZhavamConf);
+	sprintf(ptZhavamConf->appName, "%s", basename(argv[0]));
+
+	/* ***************************************************** */
+	/* 				COMMAND CONSOLE INTERFACE				 */
+	/* ***************************************************** */
 	if (argc > 1)
 	{
-		//@TODO hay que reconstruir todo el modo comando. Por ahora lo anulo
-		return 0;
-		ptZhavamConf->alsa.pcm_dev = argv[1];
-		zhavamConfig(ptZhavamConf);
-		ptZhavamConf->alsa.pcm_dev = argv[1];
-		// Console User Interface (CUI)
-		// char * devID = argv[1];
-		acr_data_t acrResponse;
-		int retVal;
-		retVal = doZhavam(ptZhavamConf->alsa.pcm_dev, &acrResponse);
-		//printAcrData(&acrResponse);
-		return retVal;
+		zhvParams_t * zhvParams = readZhvParams(argc, argv);
+
+		if (zhvParams->help)
+		{
+			zhavamHelp();
+			return EXIT_SUCCESS;
+		}
+
+		if (zhvParams->config)
+		{
+			printZhavamConf(getZhavamConf());
+			return EXIT_SUCCESS;
+		}
+
+		if (zhvParams->version)
+		{
+			printf("zhavam Version:%s Compilation:%s\n", VERSION, COMPILATION);
+			return EXIT_SUCCESS;
+		}
+
+		if (zhvParams->buffer || zhvParams->loop || zhvParams->nogui)
+		{
+			return zhavamCCI();
+		}
+		TRACE("%s", "option not recognized");
+		return EXIT_SUCCESS;
 	}
-	*/
-	// else Graphic User Interface GUI
-	zhavamConfig(ptZhavamConf);
-	//char statusActivateMsg[TEXTZHAVAMDO];
-	GtkWidget * zhavamMainWindow;
-	//GError * error = NULL;
-
+	/* ***************************************************** */
+	/* 				GRAPHICAL USER INTERFACE				 */
+	/* ***************************************************** */
 	gtk_init(&argc, &argv);
-
-	// Create new GtkBuilder object
-	newGtkBuilder();
-
-	// Get main window pointer from UI
-	zhavamMainWindow = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "zhavamMainWindow"));
-
-	sprintf(ptZhavamConf->appName, "%s", argv[0]);
-	gtkInitZhavam(ptZhavamConf);
-
-	// Connect signals
-	gtkSignalsConnect();
-	gtk_builder_connect_signals(getGtkBuilder(), NULL);
-
-	/* Show window. All other widgets are automatically shown by GtkBuilder */
-	gtk_widget_show(zhavamMainWindow);
-
-	gtkSetCursor(NORMAL_CURSOR);
-	gtk_main();
-
+	zhavamGUI();
 	return EXIT_SUCCESS;
 }

@@ -189,7 +189,9 @@ list_t * alsaGetPCMRecDevicesList(list_t * pcmRecDevList)
 			//alsaPrintDevice(&pcmDev);
 			//pcmRecDevList = listAppend(pcmRecDevList, &pcmDev, sizeof(alsaDevice_t));
 			strncpy(soundDev.name, pcmDev.hwDev, LONG_LEN);
-			strncpy(soundDev.description, pcmDev.devName, LONG_LEN);
+			//strncpy(soundDev.description, pcmDev.devName, LONG_LEN);
+			strncpy(soundDev.description, pcmDev.devName, DEV_COMBO_TEXT_LINE_LEN);
+			soundDev.description[DEV_COMBO_TEXT_LINE_LEN-1] = 0;
 			pcmRecDevList = listAppend(pcmRecDevList, &soundDev, sizeof(soundDevice_t));
 		}
 	}
@@ -336,8 +338,6 @@ void pa_sourcelist_cb(pa_context * c, const pa_source_info * l, int eol, void * 
  */
 int pa_get_devicelist(pulseDevice_t * input, pulseDevice_t * output)
 {
-	pulseDevice_t pulseDevice;
-
     // Define our pulse audio loop and connection variables
     pa_mainloop * pa_ml;
     pa_mainloop_api * pa_mlapi;
@@ -476,7 +476,9 @@ list_t * pulseGetRecDevicesList(list_t * pulseRecDevList)
 		if (!pa_input_devicelist[ctr].initialized) break;
 		pulseInitDev(&pulseDevice);
 		strncpy(soundDev.name, pa_input_devicelist[ctr].name, LONG_LEN);
-		strncpy(soundDev.description, pa_input_devicelist[ctr].description, LONG_LEN);
+		//strncpy(soundDev.description, pa_input_devicelist[ctr].description, LONG_LEN);
+		strncpy(soundDev.description, pa_input_devicelist[ctr].description, DEV_COMBO_TEXT_LINE_LEN);
+		soundDev.description[DEV_COMBO_TEXT_LINE_LEN-1]=0;
 		pulseRecDevList = listAppend(pulseRecDevList, &soundDev, sizeof(soundDevice_t));
    }
    return pulseRecDevList;

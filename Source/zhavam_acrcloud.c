@@ -32,7 +32,7 @@ static const int zhv_acr_opt_rec_int[] = {
 /**
  * method to get zhv_acr_opt_rec_str array
  */
-char ** getZhvAcrOptRecStr(void)
+const char ** getZhvAcrOptRecStr(void)
 {
 	return zhv_acr_opt_rec_str;
 }
@@ -57,7 +57,7 @@ zhv_acr_rec_t recTypeDecode(const char * recTypeString)
  * @param acrcloud_rec_type: The given given zhv_acr_opt_rec_int value
  * @return a pointer to the string with the zhv_acr_opt_rec_str value copied
  */
-char * recTypeString(zhv_acr_rec_t acrcloud_rec_type)
+const char * recTypeString(zhv_acr_rec_t acrcloud_rec_type)
 {
 	if (acrcloud_rec_type < 0 || acrcloud_rec_type >= ind_last_acr_opt_rec) return zhv_acr_opt_rec_str[0];
 	else return zhv_acr_opt_rec_str[acrcloud_rec_type];

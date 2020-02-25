@@ -25,7 +25,8 @@ typedef enum
 /**
  * ZhavamConf structure
  */
-typedef struct {
+typedef struct
+{
 	char appName[256];
 	acrcloud_config acrcloud;
 	driverController_t driverController;
@@ -37,7 +38,7 @@ typedef struct {
  * prototypes
  */
 /* zhavam_config.c */
-zhavamConf_t *newZhavamConf(void);
+zhavamConf_t *setZhavamConf(void);
 zhavamConf_t *getZhavamConf(void);
 void gtkSetAcrCloudHostEntry(zhavamConf_t *ptZhavamConf);
 const char *gtkGetAcrCloudHostEntry(void);
@@ -62,7 +63,7 @@ void gtkConfigCloseButton(GtkButton *configCloseButton, gpointer user_data);
 void configUpdate(zhavamConf_t *ptZhavamConf);
 void gtkConfigSaveButton(GtkButton *configCloseButton, gpointer user_data);
 void gtkConfigCleanButton(GtkButton *configCloseButton, gpointer user_data);
-void gtkSetDriverControllerNotebookPage(zhavamConf_t * ptZhavamConf);
+void gtkSetDriverControllerNotebookPage(zhavamConf_t *ptZhavamConf);
 void gtkConfigDialogSetUp(zhavamConf_t *ptZhavamConf);
 void gtkZhavamConfigReload(GtkImageMenuItem *menuConfigReload, gpointer user_data);
 void gtkZhavamConfigSave(GtkImageMenuItem *menuConfigSave, gpointer user_data);
@@ -74,13 +75,19 @@ void gtkSetPulsePcmBufferFramesSpinButton(zhavamConf_t *ptZhavamConf);
 int gtkGetPulsePcmBufferFramesSpinButton(void);
 void gtkSetPulsePcmDeviceComboBoxText(list_t *pcmRecDevList, zhavamConf_t *ptZhavamConf);
 char *gtkGetPulsePcmDeviceComboBoxText(void);
-char **getZhvDriverControllerList(void);
+const char **getZhvDriverControllerList(void);
 void gtkSetDefaultDriverController(GtkComboBoxText *driverControllerComboBoxText, zhavamConf_t *ptZhavamConf);
 void gtkSetDriverControllerEntry(zhavamConf_t *ptZhavamConf);
 void gtkSetDriverControllerComboBoxText(zhavamConf_t *ptZhavamConf);
 char *gtkGetdriverControllerComboBoxText(void);
 driverController_t driverControllerDecode(const char *driverControllerStr);
-char *driverControllerString(driverController_t driverController);
+const char *driverControllerString(driverController_t driverController);
 void printZhavamConf(zhavamConf_t *ptZhavamConf);
+void createZhavamConf(char *zhvHome, zhavamConf_t *ptZhavamConf);
+int configLoad(char *zhvHome, zhavamConf_t *ptZhavamConf);
+void setZhavamConfigStruct(zhavamConf_t *ptZhavamConf);
+void setupZhavamConfigStruct(zhavamConf_t *ptZhavamConf);
+void writeZhavamConfig(char *zhavamHome, zhavamConf_t *ptZhavamConf);
+void zhavamConfig(zhavamConf_t *ptZhavamConf);
 
 #endif /* SOURCE_ZHAVAM_CONFIG_H_ */

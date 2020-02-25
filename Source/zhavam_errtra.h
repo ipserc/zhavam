@@ -63,6 +63,7 @@ int errno;
 #define ERROR14 "The path %s is not a directory."
 #define ERROR15 "Unable to get statvfs info"
 #define ERROR16 "Tree Selection is NULL"
+#define ERROR17 "Unknown device driver controller, may be it is no t set."
 
 /**
  * Macro substitutions for debuggin purposes

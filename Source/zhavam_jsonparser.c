@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "strrep.h"
 #include "acrcloud_recognizer.h"
 #include "zhavam_jsonparser.h"
 #include "zhavam_errtra.h"
@@ -48,7 +48,7 @@ void initAcrDataT(acr_data_t * acrData)
 }
 
 /**
-* Replaces the first occurrence of f (rom) car to t (o) car
+* Replaces the first occurrence of f(rom)car to t(o)car
 * It's a trick way to change the metadata.music[0] index.
 * @param string: String to make the substitution
 * @param fcar: character to find
@@ -135,6 +135,13 @@ int getAcrData(char * jsonMsg, acr_data_t * acrResponse)
 {
 	jsmn_parser parser;
 	jsmntok_t * jsmnTokenArray;
+
+	/* First remove some escaped chars */
+	jsonMsg = strrep(jsonMsg, "\/", "/");
+	jsonMsg = strrep(jsonMsg, "\\/", "/");
+	jsonMsg = strrep(jsonMsg, "&amp;", "&");
+
+	//jsonMsg = strrep(jsonMsg, "\\", "");
 
 	int tokenCount = parseJSON(jsonMsg, &parser, &jsmnTokenArray);
 	if (tokenCount < 0) return EXIT_FAILURE;
