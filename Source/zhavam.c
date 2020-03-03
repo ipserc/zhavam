@@ -40,7 +40,7 @@
 
 /**
  * Static "private method" to set or get the GtkBuilder * gtkbuilder static variable. DO NOT CALL IT DIRECTLY
- * @param method: Selector for (0) set or get the GtkBuilder
+ * @param method Selector for (0) set or get the GtkBuilder
  * @return static GtkBuilder * gtkbuilder
  */
 /* private */static GtkBuilder * gtkbuilder(int method)
@@ -82,8 +82,8 @@ GtkBuilder * getGtkBuilder(void)
 /**
  * Does all the magic. does Zhavam.
  * opens the device, Sets up Audio Device, PCM prepare, Start Record and recognize the song, Close the device and present the result
- * @param devID; ID of the recording device
- * @param acrResponse: The structure in which the information of the song is stored
+ * @param devID ID of the recording device
+ * @param acrResponse The structure in which the information of the song is stored
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int doZhavam(char * devID, acr_data_t * acrResponse)
@@ -161,8 +161,8 @@ int doZhavam(char * devID, acr_data_t * acrResponse)
 
 /**
  * Converts the ACR response from the acr_data_t structure to a text to be shown in zhavam track info multiline text box,
- * @param trackInfoText: String with all the info of the track. This text is displayed in the info text view of the application
- * @param acrResponse: The structure in which the information of the song is stored
+ * @param trackInfoText String with all the info of the track. This text is displayed in the info text view of the application
+ * @param acrResponse The structure in which the information of the song is stored
  * @return A pointer to trackInfoText
  */
 char * acrDataToText(char * trackInfoText, acr_data_t * acrResponse)
@@ -215,7 +215,7 @@ char * acrDataToText(char * trackInfoText, acr_data_t * acrResponse)
 
 /**
  * Cleans up the track info text buffer
- * @param textbuf: The text buffer to clean
+ * @param textbuf The text buffer to clean
  */
 void gtkDeleteTextBuffer(GtkTextBuffer * textbuf)
 {
@@ -346,7 +346,7 @@ void gtkSetSensitiveRecordToggleButton(gboolean sensitive)
 
 /**
  * Sets StatusZhvLabel with the text passed
- * @param text: The text to set in the Status Label
+ * @param text The text to set in the Status Label
  */
 void gtkSetStatusZhvLabel(const char * text)
 {
@@ -357,7 +357,7 @@ void gtkSetStatusZhvLabel(const char * text)
 
 /**
  * Opens the warning dialog with the message passed as parameter
- * @param fmtstr: Format string as in printf
+ * @param fmtstr Format string as in printf
  * @param ...: Rest of parameters
  */
 void gtkWarning(const char * fmtstr,...)
@@ -378,7 +378,7 @@ void gtkWarning(const char * fmtstr,...)
 /**
  * Sets the cursor with one of the types defined in http://developer.gimp.org/api/2.0/gdk/gdk-Cursors.html
  * Typically normal cursor or hour glass
- * @param cursorType: the type of cursor as in http://developer.gimp.org/api/2.0/gdk/gdk-Cursors.html
+ * @param cursorType the type of cursor as in http://developer.gimp.org/api/2.0/gdk/gdk-Cursors.html
  */
 void gtkSetCursor(GdkCursorType cursorType)
 {
@@ -650,7 +650,7 @@ void zhavamHelp(void)
  */
 /**
  * Static "private method" to create or get the zhvParams_t * zhvParams static variable. DO NOT CALL IT DIRECTLY
- * @param method: Selector for (0) create a new instance or returning the one created
+ * @param method Selector for (0) create a new instance or returning the one created
  * @return A pointer to static zhvParams_t zhvParams
  */
 /* private */static zhvParams_t * zhvParams(int method)
@@ -733,7 +733,7 @@ zhvParams_t * getZhvParams(void)
 
  /**
   * Gest the Sound Device controller name to connect with the Linux sound system via API
-  * @param The string to store the device name
+  * @param devName The string to store the device name
   * @return Empty device name if the device is not recognized, otherwise the device name
   */
  char * getDevControllerName(char * devName)
@@ -744,7 +744,7 @@ zhvParams_t * getZhvParams(void)
  	*devName = '\0';
  	switch (getZhavamConf()->driverController) {
  	case ALSA:
- 		soundDevList = alsaGetPCMRecDevicesList(soundDevList); //getPCMRecDevices(pcmRecDevList);
+ 		soundDevList = alsaGetPCMRecDevicesList(soundDevList);
  		pcmDevice = getZhavamConf()->alsa.pcm_dev;
  		break;
  	case PULSE:
@@ -752,6 +752,7 @@ zhvParams_t * getZhvParams(void)
  		pcmDevice = getZhavamConf()->pulse.pcm_dev;
  		break;
  	default:
+ 		if (soundDevList) listDestroy(soundDevList, (void *)NULL);
  		WARNING("%s", WARNING17);
  		return devName;
  	}
@@ -760,11 +761,10 @@ zhvParams_t * getZhvParams(void)
  	{
  		if (!strcmp(((soundDevice_t*)(ptr->item))->description, pcmDevice))
  		{
- 		sprintf(devName, "%s", ((soundDevice_t*)(ptr->item))->name);
- 		return devName;
+ 			sprintf(devName, "%s", ((soundDevice_t*)(ptr->item))->name);
+ 			break;
  		}
- 		//gtk_combo_box_text_append((GtkComboBoxText*)devicesComboBoxText, ((soundDevice_t*)(ptr->item))->name, devComboTextLine);
- 	}
+  	}
 
  	if (soundDevList) listDestroy(soundDevList, (void *)NULL);
  	return devName;

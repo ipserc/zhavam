@@ -53,7 +53,7 @@ zhv_acr_rec_t recTypeDecode(const char * recTypeString)
 
 /**
  * Returns the zhv_acr_opt_rec_str from a given zhv_acr_opt_rec_int
- * #param acrcloud_rec_type_str: A pointer to the string in which the zhv_acr_opt_rec_str will be copied
+ * @param acrcloud_rec_type_str: A pointer to the string in which the zhv_acr_opt_rec_str will be copied
  * @param acrcloud_rec_type: The given given zhv_acr_opt_rec_int value
  * @return a pointer to the string with the zhv_acr_opt_rec_str value copied
  */
@@ -65,11 +65,11 @@ const char * recTypeString(zhv_acr_rec_t acrcloud_rec_type)
 
 /**
  * Does the song's snippet recognition by calling the ACR CLOUD service
- * acrConfig: Configuration to call the service
- * pcm_buffer,
- * pcm_buffer_len,
- * nchannels,
- * sample_rate
+ * @param acrConfig acrcloud_config: Configuration to call the service
+ * @param pcm_buffer char*
+ * @param pcm_buffer_len int
+ * @param nchannels int
+ * @param sample_rate int
  */
 char * recognize(acrcloud_config acrConfig,
 				char * pcm_buffer,

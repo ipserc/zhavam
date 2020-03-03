@@ -12,10 +12,8 @@
 #include <string.h>
 #include <malloc.h>
 
-char * appendstr(char * string, const char * append);
+char * appendstr(const char * string, const char * append);
 char * strtokk(char * string, const char * strf);
-
 char * strrep(const char * string, const char * strf, const char * strr);
-
 
 #endif /* SOURCE_STRREP_H_ */

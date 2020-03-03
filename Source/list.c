@@ -26,6 +26,8 @@ void listVersion(void)
 /**
  * Creates a new list and initializes its nodes pointers.
  * Returns NULL if memory allocation fails
+ * @param list list_t**
+ * @return list_t* the new list initialized or NULL
  */
 list_t * listNew(list_t ** list)
 {
@@ -40,6 +42,8 @@ list_t * listNew(list_t ** list)
 /**
  * Counts the number of nodes of a list.
  * Returns 0 if the list is empty.
+ * @param list list_t*
+ * @return unsigned the number of items in the list
  */
 unsigned listItemsCount(list_t * list)
 {
@@ -51,6 +55,10 @@ unsigned listItemsCount(list_t * list)
 
 /**
  * Appends a new node AT THE END of the list.
+ * @param list_t* list
+ * @param void* item
+ * @param size_t itemSize
+ * @return list_t*
  */
 list_t * listAppend(list_t * list, void * item, size_t itemSize)
 {
@@ -79,6 +87,9 @@ list_t * listAppend(list_t * list, void * item, size_t itemSize)
  * Removes the LAST node of the list if the list has more than one node.
  * If the list has only ONE node, removes the item but it keeps the list for future uses.
  * Pass the function required to free the dynamic memory allocated to the item. NULL if item hasn't got allocated memory
+ * @param list list_t*
+ * @param void (* freeItem)(void *)
+ * @return list_t*
  */
 list_t * listDrop(list_t * list, void (* freeItem)(void *))
 {
@@ -107,6 +118,8 @@ list_t * listDrop(list_t * list, void (* freeItem)(void *))
 /**
  * Frees the all the nodes of the list and its items.
  * Pass the function required to free the dynamic memory allocated to the item. NULL if item has not memory allocated
+ * @param list list_t*
+ * @param void (* freeItem)(void *)
  */
 void listDestroy(list_t * list, void (* freeItem)(void *))
 {
@@ -117,6 +130,11 @@ void listDestroy(list_t * list, void (* freeItem)(void *))
 
 /**
  *  Inserts a new node BEHIND the one pointed by ptr.
+ *  @param list list_t*
+ *  @param item void *
+ *  @param itemSize size_t
+ *  @param ptr node_t*
+ *  @return list_t*
  */
 list_t * listInsert(list_t * list, void * item, size_t itemSize, node_t * ptr)
 {
@@ -140,6 +158,10 @@ list_t * listInsert(list_t * list, void * item, size_t itemSize, node_t * ptr)
 /**
  * Removes the node pointed by ptr.
  * Pass the function required to free the dynamic memory allocated to the item. NULL if item has not memory allocated
+ * @param list list_t*
+ * @param ptr node_t*
+ * @param void (* freeItem)(void *)
+ * @return list_t*
  */
 list_t * listRemove(list_t * list, node_t * ptr, void (* freeItem)(void *))
 {
@@ -173,6 +195,10 @@ list_t * listRemove(list_t * list, node_t * ptr, void (* freeItem)(void *))
  * Removes the node in the position n.
  * 'n' starts from 0, so 0 is the index of the first item.
  * Pass the function required to free the dynamic memory allocated to the item. NULL if item has not memory allocated
+ * @param list list_t*
+ * @param n unsigned
+ * @param void (* freeItem)(void *)
+ * @return list_t*
  */
 list_t * listRemoveN(list_t * list, unsigned n, void (* freeItem)(void *))
 {
@@ -183,6 +209,8 @@ list_t * listRemoveN(list_t * list, unsigned n, void (* freeItem)(void *))
 
 /**
  * Prints whatever the printFunc would print about the item of the pointed node while traversing the list from the head to the tail.
+ * @param list list_t*
+ * @param void (* printFunc)(void *)
  */
 void listPrint(list_t * list, void (* printFunc)(void *))
 {
@@ -195,6 +223,8 @@ void listPrint(list_t * list, void (* printFunc)(void *))
 
 /**
  * Prints whatever the printFunc would print for an item of a given node of the list (I guess the node belongs to a list)
+ * @param node node_t*
+ * @param void (* printFunc)(void *)
  */
 void listNodePrint(node_t * node, void (* printFunc)(void *))
 {
@@ -204,6 +234,7 @@ void listNodePrint(node_t * node, void (* printFunc)(void *))
 
 /**
  * Prints a pointer map of the list.
+ * @param list list_t*
  */
 void listMapPrint(list_t * list)
 {
@@ -223,6 +254,8 @@ void listMapPrint(list_t * list)
 
 /**
  * Returns the pointer at the first node of the list.
+ * @param list list_t*
+ * @return node_t*
  */
 node_t * listNodeFirst(list_t * list)
 {
@@ -231,6 +264,8 @@ node_t * listNodeFirst(list_t * list)
 
 /**
  * Returns the pointer at the last node of the list.
+ * @param list list_t*
+ * @return node_t*
  */
 node_t * listNodeLast(list_t * list)
 {
@@ -240,6 +275,9 @@ node_t * listNodeLast(list_t * list)
 /**
  * Returns a pointer at the nth node of the list or NULL if it doesn't exist.
  * 'n' starts from 0, so 0 is the index of the first item.
+ * @param list list_t*
+ * @param n unsigned
+ * @return node_t*
  */
 node_t * listNodeN(list_t * list, unsigned n)
 {
@@ -254,6 +292,10 @@ node_t * listNodeN(list_t * list, unsigned n)
 
 /**
  * Finds the first match given by findFunc by traversing the list from the head to the tail and returns the node.
+ * @param list list_t*
+ * @param startNode node_t*
+ * @param bool (* findFunc)(void *)
+ * @return node_t*
  */
 node_t * listFind(list_t * list, node_t * startNode, bool (* findFunc)(void *))
 {

@@ -7,16 +7,16 @@
 
 #include "strrep.h"
 
-/** appendstr (Append String). Appends the string 'append' to the string 'string'.
+/** appendstr (Append String). Appends the string 'append' to the string 'string' in a new allocated string.
+ * You have to freed the new string when you don't need it anymore.
  * @param string The string in which append the new text.
  * @param append The new string to append.
- * @return returns a new string with the appended text.
+ * @return returns the new string with the appended text.
  */
-char * appendstr(char * string, const char * append) {
+char * appendstr(const char * string, const char * append) {
 	char * newString = malloc(strlen(string) + strlen(append) + 1);
 
 	sprintf(newString, "%s%s", string, append);
-	free(string);
 	return newString;
 }
 

@@ -14,7 +14,6 @@
 #include "zhavam_alsa.h"
 #include "zhavam_errtra.h"
 
-
 /**
  * "member" variable with the text names of the SND_PCM_FORMAT used
  */
@@ -430,13 +429,13 @@ int alsaStartRecord(snd_pcm_t * capture_handle,
 		TRACE("ACRCloud response:%s", reconResponse);
 		getAcrData(reconResponse, acrResponse);
 		free(reconResponse);
-		if (atoi(acrResponse->status.code) == 0) break;
+		if (atoi(acrResponse->status.code) == 0) break; // @suppress("Field cannot be resolved")
 	}
 	free(pcm_buffer);
 	sprintf(STATUS_MESSAGE, "pcm_buffer freed");
 	sprintf(STATUS_MESSAGE, STATUS02);
 	if (getGtkBuilder()) gtkSetStatusZhvLabel(STATUS_MESSAGE);
-	return atoi(acrResponse->status.code);
+	return atoi(acrResponse->status.code); // @suppress("Field cannot be resolved")
 }
 
 /**

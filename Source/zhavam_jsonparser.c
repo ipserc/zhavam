@@ -20,30 +20,30 @@
  */
 void initAcrDataT(acr_data_t * acrData)
 {
-	acrData->status.code[0] = '\0';
-	acrData->status.msg[0] = '\0';
-	acrData->status.version[0] = '\0';
-	acrData->metadata.music.acrid[0] = '\0';
-	acrData->metadata.music.album[0] = '\0';
+	acrData->status.code[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->status.msg[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->status.version[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.acrid[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.album[0] = '\0'; // @suppress("Field cannot be resolved")
 	for (int i = 0; i < MAX_ITEMS; ++i)
-		acrData->metadata.music.artists[0][i] = '\0';
-	acrData->metadata.music.duration_ms[0] = '\0';
-	acrData->metadata.music.external_ids[0] = '\0';
+		acrData->metadata.music.artists[0][i] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.duration_ms[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.external_ids[0] = '\0'; // @suppress("Field cannot be resolved")
 	for (int i = 0; i < MAX_ITEMS; ++i)
-		acrData->metadata.music.genres[0][i] = '\0';
-	acrData->metadata.music.label[0] = '\0';
-	acrData->metadata.music.play_offset_ms[0] = '\0';
-	acrData->metadata.music.release_date[0] = '\0';
-	acrData->metadata.music.result_from[0] = '\0';
-	acrData->metadata.music.score[0] = '\0';
-	acrData->metadata.music.title[0] = '\0';
-	acrData->metadata.music.external_metadata.youtube_vid[0] = '\0';
-	acrData->metadata.music.external_metadata.spotify.album_id[0] = '\0';
-	acrData->metadata.music.external_metadata.spotify.artist_id[0] = '\0';
-	acrData->metadata.music.external_metadata.spotify.track_id[0] = '\0';
-	acrData->metadata.music.external_metadata.deezer.album_id[0] = '\0';
-	acrData->metadata.music.external_metadata.deezer.artist_id[0] = '\0';
-	acrData->metadata.music.external_metadata.deezer.track_id[0] = '\0';
+		acrData->metadata.music.genres[0][i] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.label[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.play_offset_ms[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.release_date[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.result_from[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.score[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.title[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.external_metadata.youtube_vid[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.external_metadata.spotify.album_id[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.external_metadata.spotify.artist_id[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.external_metadata.spotify.track_id[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.external_metadata.deezer.album_id[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.external_metadata.deezer.artist_id[0] = '\0'; // @suppress("Field cannot be resolved")
+	acrData->metadata.music.external_metadata.deezer.track_id[0] = '\0'; // @suppress("Field cannot be resolved")
 
 }
 
