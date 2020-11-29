@@ -1,0 +1,14 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Path=/opt/bin/zhavam
+Icon[es_ES]=/opt/bin/zhavam/Zhavam.01.svg.png
+Name[es_ES]=Zhavam
+Exec=/opt/bin/zhavam/zhavam
+Comment[es_ES]=Music recognition
+Name=Zhavam
+Comment=Music recognition
+Icon=/opt/bin/zhavam/Zhavam.01.svg.png

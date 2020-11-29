@@ -140,6 +140,8 @@ Before using zhavam, please register yourself in ACRCloud and put the host, acce
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="window-position">center</property>
+    <property name="default-width">300</property>
+    <property name="default-height">400</property>
     <property name="icon">Zhavam.01.svg.png</property>
     <child>
       <object class="GtkBox" id="zhavamMainWindowBox">
@@ -315,6 +317,7 @@ Before using zhavam, please register yourself in ACRCloud and put the host, acce
                     </child>
                     <child>
                       <object class="GtkComboBoxText" id="devicesComboBoxText">
+                        <property name="width-request">0</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                       </object>
@@ -513,10 +516,7 @@ Before using zhavam, please register yourself in ACRCloud and put the host, acce
   </object>
   <object class="GtkAboutDialog" id="aboutZhavam">
     <property name="can-focus">False</property>
-    <property name="resizable">False</property>
-    <property name="modal">True</property>
-    <property name="window-position">center</property>
-    <property name="destroy-with-parent">True</property>
+    <property name="title" translatable="yes">About Zhavam</property>
     <property name="icon-name">dialog-information</property>
     <property name="type-hint">dialog</property>
     <property name="gravity">center</property>
@@ -524,15 +524,14 @@ Before using zhavam, please register yourself in ACRCloud and put the host, acce
     <property name="attached-to">menuHelpAbout</property>
     <property name="program-name">Zhavam (powered by Gtk+ 3.38.2)</property>
     <property name="version">1.5</property>
-    <property name="comments" translatable="yes">Zhavam helps you to identify the music or song that is being reproduced from or outside of your computer. You can also try singing or whistle the song you are looking for, but  you need have got a micro connected.</property>
+    <property name="comments" translatable="yes">Zhavam helps you to identify the music or song that is being reproduced from or outside of your computer. You can also try singing or whistle the song you are looking for, but  you need have got a micro connected to i</property>
     <property name="website">https://github.com/ipserc/zhavam</property>
     <property name="website-label" translatable="yes">Zhavam</property>
     <property name="authors">José Luis Núñez Crespi (aka ipserc)</property>
     <property name="logo">Zhavam.01.svg</property>
     <property name="license-type">gpl-3-0</property>
     <signal name="close" handler="gtk_widget_hide" swapped="no"/>
-    <signal name="delete-event" handler="gtk_widget_hide" swapped="no"/>
-    <signal name="response" handler="gtk_widget_hide" swapped="no"/>
+    <signal name="destroy" handler="gtk_widget_hide" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="gtkBoxAboutZhavam">
         <property name="can-focus">False</property>
@@ -542,14 +541,15 @@ Before using zhavam, please register yourself in ACRCloud and put the host, acce
           <object class="GtkButtonBox">
             <property name="can-focus">False</property>
             <property name="layout-style">end</property>
-            <signal name="delete-event" handler="gtk_widget_hide" object="aboutZhavam" swapped="no"/>
-            <signal name="destroy" handler="gtk_widget_hide" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="position">-1</property>
+            <property name="position">0</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
