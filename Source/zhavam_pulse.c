@@ -209,7 +209,7 @@ pa_simple * pulseServerConnect(char * devID)
 	ptrPaSimple = pa_simple_new(NULL,					// Use the default server.
 								ptZhavamConf->appName,	// Our application's name.
 								PA_STREAM_RECORD,		// The direction of a pa_stream object	
-								devID,					// Use the default device.
+								devID,					// Sink (resp. source) name, or NULL for default.
 								SND_PA_STREAM_NAME,		// Description of our stream.
 								ptrPaSampleSpec,		// Our sample format.
 								NULL,					// Use default channel map.

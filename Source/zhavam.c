@@ -249,7 +249,7 @@ void gtkRecordToggleButtonClickedCallback(GtkToggleButton * recordToggleButton, 
 }
 
 /**
- * Gets the DevID from devicesComboBoxText and stores it in zhavamConf->alsa.pcm_dev
+ * Gets the CURRENT DevID (device name) from devicesComboBoxText and stores it in zhavamConf->alsa.pcm_dev
  * return zhavamConf-> alsa.pcm_dev
  */
 char * gtkGetDevID(void)
@@ -565,6 +565,18 @@ void gtkDriverControllerComboBoxTextChange(GtkComboBoxText * driverControllerCom
 }
 
 /**
+ * reloadDevsButton clicked callback
+ * Reloads the recording devices
+ * @param driverControllerComboBoxText
+ * @param user_data
+ */
+void gtkReloadDevicesComboBoxText(GtkComboBoxText * driverControllerComboBoxText, gpointer user_data)
+{
+	zhavamConf_t * ptZhavamConf = getZhavamConf();
+	gtkInitDevicesComboBoxText(ptZhavamConf);
+}
+
+/**
  * Signals Connect function
  */
 void gtkSignalsConnect(void)
@@ -610,6 +622,9 @@ void gtkSignalsConnect(void)
 
 	GtkWidget * driverControllerComboBoxText = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "driverControllerComboBoxText"));
 	g_signal_connect(G_OBJECT(driverControllerComboBoxText), "changed", G_CALLBACK(gtkDriverControllerComboBoxTextChange), (gpointer)NULL);
+
+	GtkWidget * reloadDevsButton = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "reloadDevsButton"));
+	g_signal_connect(G_OBJECT(reloadDevsButton), "clicked", G_CALLBACK(gtkReloadDevicesComboBoxText), (gpointer)NULL);
 }
 
 /**
@@ -690,7 +705,7 @@ zhvParams_t * getZhvParams(void)
 /**
  * Reads the params passed from the command line
  */
- zhvParams_t * readZhvParams(int argc, char *argv[])
+ zhvParams_t * readZhvParams(int argc, char * argv[])
 {
     static struct option long_options[] =
       {

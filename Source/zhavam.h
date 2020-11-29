@@ -11,8 +11,8 @@
 #include <gtk/gtk.h>
 #include "zhavam_config.h"
 
-#define VERSION "1.4"
-#define COMPILATION "2020-02-20"
+#define VERSION "1.5"
+#define COMPILATION "2020-11-25"
 
 #define NORMAL_CURSOR GDK_LEFT_PTR
 
@@ -88,11 +88,13 @@ void gtkZhavamClearTrackInfoTextView(GtkImageMenuItem *menuInfoClearText, gpoint
 void gtkZhavamAbout(GtkImageMenuItem *menuHelpAbout, gpointer user_data);
 void gtkDialogWarningClose(GtkImageMenuItem *buttonDialogWarning, gpointer user_data);
 void gtkDriverControllerComboBoxTextChange(GtkComboBoxText *driverControllerComboBoxText, gpointer user_data);
+void gtkReloadDevicesComboBoxText(GtkComboBoxText *driverControllerComboBoxText, gpointer user_data);
 void gtkSignalsConnect(void);
 void zhavamHelp(void);
 zhvParams_t *setZhvParams(void);
 zhvParams_t *getZhvParams(void);
 zhvParams_t *readZhvParams(int argc, char *argv[]);
+char *getDevControllerName(char *devName);
 int zhavamCCI(void);
 void zhavamGUI(void);
 int main(int argc, char *argv[]);

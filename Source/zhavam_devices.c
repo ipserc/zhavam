@@ -3,6 +3,12 @@
  *
  *  Created on: 23 ene. 2018
  *      Author: ipserc
+ *
+ *      This functions were taken from https://gist.github.com/andrewrk/6470f3786d05999fcb48
+ *      	void pa_state_cb(pa_context *c, void *userdata);
+ *			void pa_sinklist_cb(pa_context *c, const pa_sink_info *l, int eol, void *userdata);
+ *			void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, void *userdata);
+ *			int pa_get_devicelist(pa_devicelist_t *input, pa_devicelist_t *output);
  */
 
 #include <stdio.h>
@@ -334,7 +340,7 @@ void pa_sourcelist_cb(pa_context * c, const pa_source_info * l, int eol, void * 
  * Gets the Pulse Recording devices from the API
  * @param pulseDevice_t * input Array of INPUT MAX_NUM_DEVICES
  * @param pulseDevice_t * output Array of OUTPUT MAX_NUM_DEVICES
- * @return int state The fianl state of the process
+ * @return int state The final state of the process
  */
 int pa_get_devicelist(pulseDevice_t * input, pulseDevice_t * output)
 {
