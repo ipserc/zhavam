@@ -25,6 +25,8 @@ extern int errno;
 
 #define SND_PA_STREAM_NAME "zhavam rec stream"
 
+#define RECORD_RETRIES 0
+
 /**
  * PA SAMPLE enumerator
  */

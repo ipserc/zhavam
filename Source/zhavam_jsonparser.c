@@ -113,15 +113,28 @@ int getIndexBestMusicScore(char * jsonMsg, jsmntok_t * jsmnTokenArray)
 	while ((tokenValue = getTokenValue(tpath, jsonMsg, jsmnTokenArray)) != NULL)
 	{
 		musicScore = atoi(tokenValue);
+		/** /
+		TRACE("**************** musicScore:%d", musicScore);
+		/**/
 		free(tokenValue);
 		if (bestMusicScore < musicScore)
 		{
 			bestMusicScore = musicScore;
 			bestIndex = index;
 		}
+
 		if (++index > MAX_ITEMS) break;
 		sprintf(tpath, "%s%d%s", "metadata.music[", index, "].score");
+		/** /
+		TRACE("**************** tpath:%s", tpath);
+		TRACE("**************** musicScore:%d", musicScore);
+		TRACE("**************** bestIndex:%d", bestIndex);
+		/**/
 	}
+	/** /
+	TRACE("**************** FINAL musicScore:%d", musicScore);
+	TRACE("**************** FINAL bestIndex:%d", bestIndex);
+	/**/
 	return bestIndex;
 }
 
@@ -151,15 +164,22 @@ int getAcrData(char * jsonMsg, acr_data_t * acrResponse)
 	if (!memcmp("", &jsonMsg[jsonToken->start], (size_t)getJsmnTokenLen(jsonToken))) return JSMN_ERROR_PART;
 
 	// ain't necessary
-	//initAcrDataT(acrResponse);
+	initAcrDataT(acrResponse);
 
 	setUpAcrResponseField("status.code", 0, acrResponse->status.code, jsonMsg, jsmnTokenArray);
 	setUpAcrResponseField("status.msg", 0, acrResponse->status.msg, jsonMsg, jsmnTokenArray);
 	setUpAcrResponseField("status.version", 0, acrResponse->status.version, jsonMsg, jsmnTokenArray);
+	/** /
+	TRACE("**************** status.code:%s", acrResponse->status.code);
+	/**/
 
 	if (acrResponse->status.code[0] != '0') return EXIT_FAILURE;
 
 	int musicIndex = getIndexBestMusicScore(jsonMsg, jsmnTokenArray);
+	/** /
+	TRACE("**************** musicIndex:%d", musicIndex);
+	/**/
+
 
 	setUpAcrResponseField("metadata.music[0].album.name", musicIndex, acrResponse->metadata.music.album, jsonMsg, jsmnTokenArray);
 	setUpAcrResponseField("metadata.music[0].artists[0].name", musicIndex, acrResponse->metadata.music.artists[0], jsonMsg, jsmnTokenArray);

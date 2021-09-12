@@ -11,9 +11,6 @@
 #include <gtk/gtk.h>
 #include "zhavam_config.h"
 
-#define VERSION "1.5"
-#define COMPILATION "2020-11-25"
-
 #define NORMAL_CURSOR GDK_LEFT_PTR
 
 #define BASENAMELEN 1001
@@ -36,7 +33,7 @@
 #define STATUS02 "Ready to capture again"
 #define STATUS03 "acr cloud is not set. Unable to connect"
 #define STATUS04 "Device driver controller is not available"
-#define STATUS05 "STARTING READING from audio interface..."
+#define STATUS05 "START READING from audio interface..."
 
 #define DEV_COMBO_TEXT_LINE_LEN 50
 

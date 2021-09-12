@@ -21,6 +21,7 @@
 #include <getopt.h>
 #include <ctype.h>
 #include <libgen.h>
+#include <signal.h>
 
 #include "zhavam.h"
 #include "zhavam_glade.h"
@@ -30,6 +31,50 @@
 #include "zhavam_pulse.h"
 #include "zhavam_devices.h"
 #include "zhavam_errtra.h"
+
+//------------------------------------------
+//          PROGRAM FACTS SECTION
+//------------------------------------------
+#define VERSION		"1.6"
+#define AUTHOR		"ipserc"
+#define CONTACT 	"https://github.com/ipserc"
+#define CREATION	"2018/01/06"
+#define COMPILATION	"2021/09/12"
+#define PROGRAM		"Zhavam"
+#define MODULE		__FILE__
+#define LICENSE		"GNU General Public License v3.0"
+
+/**
+ * Returns a string with Program - Version - Compilation info
+ * @return a string with Program - Version - Compilation info
+ */
+char * factsString(char * factsString)
+{
+	sprintf(factsString, "Program:%s - Version:%s - Compilation:%s", PROGRAM, VERSION, COMPILATION);
+	return factsString;
+}
+
+/**
+ * Prints the program facts
+ */
+void printfacts()
+{
+	puts("------------------------------------------");
+	puts("              PROGRAM FACTS               ");
+	puts("------------------------------------------");
+	printf("Version......:%s\n", VERSION);
+	printf("Author.......:%s\n", AUTHOR);
+	printf("Contact......:%s\n", CONTACT);
+	printf("Creation Date:%s\n", CREATION);
+	printf("Update Date..:%s\n", COMPILATION);
+	printf("Program Name.:%s\n", PROGRAM);
+	printf("Module Name..:%s\n", MODULE);
+	printf("License......:%s\n", LICENSE);
+	puts("--------     END PROGRAM FACTS    --------");
+}
+//------------------------------------------
+//       END OF PROGRAM FACTS SECTION
+//------------------------------------------
 
 /**
  * Global Variables GV_
@@ -470,6 +515,7 @@ void gtkInitZhavam(zhavamConf_t * ptZhavamConf)
  */
 void gtkCloseZhavam(void)
 {
+	//TRACE("gtkCloseZhavam", "");
 	gtkSetCursor(NORMAL_CURSOR);
 	gtk_main_quit();
 }
@@ -581,11 +627,11 @@ void gtkReloadDevicesComboBoxText(GtkComboBoxText * driverControllerComboBoxText
  */
 void gtkSignalsConnect(void)
 {
-	GtkWidget * recordToggleButton = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "recordToggleButton"));
-	g_signal_connect(recordToggleButton, "clicked", (GCallback)gtkRecordToggleButtonClickedCallback, (gpointer)NULL );
-
 	GtkWidget * zhavamMainWindow = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "zhavamMainWindow"));
 	g_signal_connect(G_OBJECT(zhavamMainWindow), "destroy", G_CALLBACK(gtkCloseZhavam), (gpointer)NULL);
+
+	GtkWidget * recordToggleButton = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "recordToggleButton"));
+	g_signal_connect(recordToggleButton, "clicked", (GCallback)gtkRecordToggleButtonClickedCallback, (gpointer)NULL );
 
 	GtkWidget * menuConfigEdit = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "menuConfigEdit"));
 	g_signal_connect(G_OBJECT(menuConfigEdit), "activate", G_CALLBACK(gtkZhavamConfigEdit), (gpointer)NULL);
@@ -625,6 +671,21 @@ void gtkSignalsConnect(void)
 
 	GtkWidget * reloadDevsButton = GTK_WIDGET(gtk_builder_get_object(getGtkBuilder(), "reloadDevsButton"));
 	g_signal_connect(G_OBJECT(reloadDevsButton), "clicked", G_CALLBACK(gtkReloadDevicesComboBoxText), (gpointer)NULL);
+}
+
+/**
+ * Catches the SIGTERM signal to perform an orderly program exit
+ * Used by zhavamGUI only
+ */
+void catchSigterm()
+{
+    static struct sigaction _sigact;
+
+    memset(&_sigact, 0, sizeof(_sigact));
+    _sigact.sa_sigaction = gtkCloseZhavam;
+    _sigact.sa_flags = SA_SIGINFO;
+
+    sigaction(SIGTERM, &_sigact, NULL);
 }
 
 /**
@@ -786,7 +847,7 @@ zhvParams_t * getZhvParams(void)
  }
 
  /**
-  * Runs zhavam in Console Line Interface mode
+  * Runs zhavam in Command Console Interface mode
   * @return The result of doing music recognition
   */
  int zhavamCCI(void)
@@ -839,6 +900,11 @@ void zhavamGUI(void)
 		/* Show window. All other widgets are automatically shown by GtkBuilder */
 		gtk_widget_show(zhavamMainWindow);
 		gtkSetCursor(NORMAL_CURSOR);
+		// Sets the version of Zhavam in the about dialog
+		gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(gtk_builder_get_object(getGtkBuilder(), "aboutZhavam")), VERSION);
+
+		catchSigterm();
+
 		gtk_main();
  }
 
@@ -881,6 +947,7 @@ int main(int argc, char * argv[])
 
 		if (zhvParams->buffer || zhvParams->loop || zhvParams->nogui)
 		{
+			printfacts();
 			return zhavamCCI();
 		}
 		TRACE("%s", "option not recognized");
@@ -889,6 +956,7 @@ int main(int argc, char * argv[])
 	/* ***************************************************** */
 	/* 				GRAPHICAL USER INTERFACE				 */
 	/* ***************************************************** */
+	printfacts();
 	gtk_init(&argc, &argv);
 	zhavamGUI();
 	return EXIT_SUCCESS;

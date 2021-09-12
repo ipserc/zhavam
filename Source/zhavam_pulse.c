@@ -266,7 +266,7 @@ int pulseStartRecord(pa_simple * ptrPaSimple,
 	sprintf(STATUS_MESSAGE, STATUS05);
 	if (getGtkBuilder()) gtkSetStatusZhvLabel(STATUS_MESSAGE);
 	else TRACE("%s", STATUS_MESSAGE);
-	for (int i = 1; i < 4; ++i) {
+	for (int recordNbr = 1; recordNbr <= 1 + RECORD_RETRIES; ++recordNbr) {
         /* Record some data ... */
         if (pa_simple_read(ptrPaSimple, buffer, ptrPaBufferAttr->maxlength, &paErrno) < 0) {
 			sprintf(STATUS_MESSAGE, "pa_simple_read FAILED: %s", pa_strerror(paErrno));
@@ -281,7 +281,7 @@ int pulseStartRecord(pa_simple * ptrPaSimple,
         }
         else
         {
-        	sprintf(STATUS_MESSAGE, "read %d done", i);
+        	sprintf(STATUS_MESSAGE, "read %d done", recordNbr);
 			TRACE("%s", STATUS_MESSAGE);
         }
 		/* FOR DEBUGGING PURPOSES */

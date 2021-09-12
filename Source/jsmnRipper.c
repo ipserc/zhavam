@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "zhavam_errtra.h"
 
 #define JSMN_PARENT_LINKS
 
@@ -69,8 +70,10 @@ int listTokenCreate(list_t * tokenList, char * tpath)
 void printItem(void * param)
 {
 	item_t * item  = (item_t *)param;
-	//TRACE("Address item(%p)",item);
-	//TRACE("Address item->name(%p):%s",item->name, item->name);
+	/** /
+	TRACE("Address item(%p)",item);
+	TRACE("Address item->name(%p):%s",item->name, item->name);
+	/**/
 	printf("item->name:%s\n", item->name);
 	printf("item->jtype:%d\n", item->jtype);
 	printf("item->index:%d\n", item->index);
@@ -232,12 +235,17 @@ jsmntok_t * findJsmnEngine(list_t * tokenList, char * jsonMsg, jsmntok_t * jsmnT
 		jsmnTokenItem = malloc((size_t)getJsmnTokenLen(jsmnToken)+1);
 		jsmnTokenItem[(size_t)getJsmnTokenLen(jsmnToken)] = '\0';
 		strncpy(jsmnTokenItem, &jsonMsg[jsmnToken->start], (size_t)getJsmnTokenLen(jsmnToken));
-		//TRACE("Token to find item->name:%s", item->name);
-		//TRACE("jsmnTokenItem:%s", jsmnTokenItem);
-		//printf("%s", "***** Test "); printJsmnToken(jsonMsg, jsmnToken); puts("");
+		/** /
+		TRACE("**************** Token to find item->name:%s", item->name);
+		TRACE("**************** jsmnTokenItem:%s", jsmnTokenItem);
+		printf("%s", "**************** Test "); printJsmnToken(jsonMsg, jsmnToken); puts("");
+		/**/
 
 		if (!strcmp(item->name, jsmnTokenItem))
 		{
+			/** /
+			TRACE("**************** item->name:%s NO encontrado", item->name);
+			/**/
 			if (item->jtype == JSMN_ARRAY)
 			{
 				tokenIndex = item->index;
@@ -254,6 +262,11 @@ jsmntok_t * findJsmnEngine(list_t * tokenList, char * jsonMsg, jsmntok_t * jsmnT
 				{
 					++indexCount;
 					cont = jumpToTokenPos(&jsmnToken, jsmnToken->end);
+					/** /
+					TRACE("**************** tokenIndex:%d", tokenIndex);
+					TRACE("**************** indexCount:%d", indexCount);
+					/**/
+
 				}
 				cont = nextToken(&jsmnToken);
 			}
@@ -263,10 +276,15 @@ jsmntok_t * findJsmnEngine(list_t * tokenList, char * jsonMsg, jsmntok_t * jsmnT
 				tokenIndex = 0;
 				tokenListNode = tokenListNode->next;
 				item = (item_t *)((node_t *)(tokenListNode->item));
-				//TRACE("**** %s Token to find item->name:%s", (tokenListNode->next) ? "Next" : "Last", item->name);
+				/** /
+				TRACE("**************** %s Token to find item->name:%s", (tokenListNode->next) ? "Next" : "Last", item->name);
+				/**/
 			}
 			else // item found
 			{
+				/** /
+				TRACE("**************** item->name:%s ENCONTRADO", item->name);
+				/**/
 				free(jsmnTokenItem);
 				return jsmnToken;
 			}
@@ -288,6 +306,9 @@ jsmntok_t * findJsmnEngine(list_t * tokenList, char * jsonMsg, jsmntok_t * jsmnT
 		}
 		free(jsmnTokenItem);
 	}
+	/** /
+	TRACE("**************** item->name:%s  --- NOT --- FOUND", item->name);
+	/**/
 	return (jsmntok_t *)NULL;
 }
 
@@ -342,5 +363,8 @@ char * getTokenValue(char * tpath, char * jsonMsg, jsmntok_t * jsmnTokenArray)
 		sprintf(tokenfmt, "%s%lu%s", "%.", (size_t)getJsmnTokenLen(jsmnTokenFound), "s");
 		sprintf(tokenValue, tokenfmt, &jsonMsg[jsmnTokenFound->start]);
 	}
+	/** /
+	TRACE("**************** tokenValue:%s", tokenValue);
+	/**/
 	return tokenValue;
 }
