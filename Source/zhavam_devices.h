@@ -20,7 +20,7 @@ extern char STATUS_MESSAGE[];
 #define PA_READY_FAILED -1
 #define PA_READY_WAIT 0
 #define PA_READY_OK 1
-#define PA_INVALID_INDEX -1
+// #define PA_INVALID_INDEX -1 already defined in def.h
 
 #define MAX_NUM_DEVICES 16
 

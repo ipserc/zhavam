@@ -35,11 +35,11 @@
 //------------------------------------------
 //          PROGRAM FACTS SECTION
 //------------------------------------------
-#define VERSION		"1.6"
+#define VERSION		"1.7"
 #define AUTHOR		"ipserc"
 #define CONTACT 	"https://github.com/ipserc"
 #define CREATION	"2018/01/06"
-#define COMPILATION	"2021/09/12"
+#define COMPILATION	"2021/09/16"
 #define PROGRAM		"Zhavam"
 #define MODULE		__FILE__
 #define LICENSE		"GNU General Public License v3.0"
@@ -515,7 +515,7 @@ void gtkInitZhavam(zhavamConf_t * ptZhavamConf)
  */
 void gtkCloseZhavam(void)
 {
-	//TRACE("gtkCloseZhavam", "");
+	TRACE("gtkCloseZhavam", "");
 	gtkSetCursor(NORMAL_CURSOR);
 	gtk_main_quit();
 }
@@ -676,16 +676,19 @@ void gtkSignalsConnect(void)
 /**
  * Catches the SIGTERM signal to perform an orderly program exit
  * Used by zhavamGUI only
+ * https://www.systutorials.com/catching-the-signal-sent-by-kill-in-c-on-linux/
+ * https://www.thegeekstuff.com/2012/03/catch-signals-sample-c-code/
  */
 void catchSigterm()
 {
     static struct sigaction _sigact;
 
     memset(&_sigact, 0, sizeof(_sigact));
-    _sigact.sa_sigaction = gtkCloseZhavam;
+    _sigact.sa_sigaction = (void *)gtkCloseZhavam;
     _sigact.sa_flags = SA_SIGINFO;
 
     sigaction(SIGTERM, &_sigact, NULL);
+    // sigaction(SIGKILL, &_sigact, NULL); SIGKILL cannot be catched
 }
 
 /**
